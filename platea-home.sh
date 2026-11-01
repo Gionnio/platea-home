@@ -25,7 +25,7 @@ need_tv() {
     adb kill-server >/dev/null 2>&1; adb start-server >/dev/null 2>&1; adb connect "$SERIAL" >/dev/null 2>&1 || true
   fi
   adb -s "$SERIAL" shell echo ok 2>/dev/null | grep -q ok || { echo "[!!] Cannot reach the TV at $SERIAL (is it on? network debugging on? press Allow on the TV)"; exit 1; }
-  STATE="$HERE/state/$(echo "$TV_HOST" | tr -c 'A-Za-z0-9._-' '_')"
+  STATE="$HERE/state/$(printf '%s' "$TV_HOST" | tr -c 'A-Za-z0-9._-' '_')"
   mkdir -p "$STATE"
 }
 t() { adb -s "$SERIAL" shell "$@" | tr -d '\r'; }
@@ -83,16 +83,35 @@ restore() {
     while read -r p; do [ -n "$p" ] && t pm enable --user 0 "$p" >/dev/null && echo "[OK] Enabled $p again"; done < "$STATE/disabled-by-platea-home"
     : > "$STATE/disabled-by-platea-home"
   fi
-  if [ -s "$STATE/home-before" ]; then t cmd package set-home-activity --user 0 "$(cat "$STATE/home-before")" >/dev/null; fi
-  if [ -s "$STATE/screensaver-before" ] && [ "$(cat "$STATE/screensaver-before")" != null ]; then
-    t settings put secure screensaver_components "$(cat "$STATE/screensaver-before")"
+  # The Home to go back to: the recorded one if its app is still installed, else the first stock launcher installed.
+  # A launcher that a debloat disabled is enabled again: without it the TV would have no Home.
+  local target=""; [ -s "$STATE/home-before" ] && target="$(cat "$STATE/home-before")"
+  if [ -n "$target" ] && ! t pm list packages "${target%%/*}" | grep -qx "package:${target%%/*}"; then target=""; fi
+  if [ -z "$target" ]; then
+    for p in $STOCK; do
+      if t pm list packages "$p" | grep -qx "package:$p"; then
+        target="$(t cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME "$p" | tail -1)"
+        case "$target" in "$p"/*) break ;; *) target="$p/.MainActivity"; break ;; esac
+      fi
+    done
+  fi
+  [ -n "$target" ] || { echo "[!!] No previous Home and no stock launcher installed: not removing Platea Home"; exit 1; }
+  if t pm list packages -d "${target%%/*}" | grep -qx "package:${target%%/*}"; then
+    t pm enable --user 0 "${target%%/*}" >/dev/null && echo "[OK] Enabled ${target%%/*} again (it was disabled)"
+  fi
+  t cmd package set-home-activity --user 0 "$target" >/dev/null
+  local saver=""; [ -s "$STATE/screensaver-before" ] && saver="$(cat "$STATE/screensaver-before")"
+  if [ -n "$saver" ] && [ "$saver" != null ] && t pm list packages "${saver%%/*}" | grep -qx "package:${saver%%/*}"; then
+    t settings put secure screensaver_components "$saver"
+  elif [ "$(t settings get secure screensaver_components)" = "$PKG/.SiparioDream" ]; then
+    t settings delete secure screensaver_components >/dev/null
   fi
   local now; now="$(home_now)"
-  if [ "${now%%/*}" != "$PKG" ]; then
+  if [ "${now%%/*}" != "$PKG" ] && [ "${now%%/*}" != android ]; then
     t pm uninstall "$PKG" >/dev/null && echo "[OK] Platea Home removed"
     rm -f "$STATE/home-before" "$STATE/screensaver-before"
   else
-    echo "[!!] Home is still Platea Home: not removing it (no previous Home recorded?)"
+    echo "[!!] Home resolves to '$now': not removing Platea Home"
   fi
   echo "Home: $(home_now)"
 }
