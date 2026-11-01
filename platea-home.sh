@@ -2,7 +2,8 @@
 # Platea Home: a minimal, tvOS-style launcher. Debloating is CleanYourTV's, always at its latest version.
 #
 #   ./platea-home.sh build                          build (CONFIG=<json> picks the TV's configuration)
-#   TV_HOST=<ip> ./platea-home.sh install           install and make it Home, safely (SIPARIO=1: also the screen saver)
+#   TV_HOST=<ip> ./platea-home.sh install           install and make it Home, safely (SIPARIO=1: also the screen saver;
+#                                                       APK=<file>: install a ready-made APK instead of building)
 #   TV_HOST=<ip> ./platea-home.sh debloat <list>    debloat with tools/disable.sh from the latest CleanYourTV
 #   TV_HOST=<ip> ./platea-home.sh restore           give Home and the screen saver back, then remove Platea Home
 #   TV_HOST=<ip> ./platea-home.sh status            Home, installed version, memory
@@ -32,11 +33,22 @@ home_now() { t cmd package resolve-activity --brief -a android.intent.action.MAI
 
 install() {
   need_tv
-  "$HERE/build.sh"
+  # APK=<file> installs a ready-made APK (from the GitHub release): no JDK or Android SDK needed.
+  local apk="${APK:-}"
+  if [ -z "$apk" ]; then "$HERE/build.sh"; apk="$HERE/build/platea-home.apk"; fi
+  [ -f "$apk" ] || { echo "[!!] APK not found: $apk"; exit 1; }
   local before; before="$(home_now)"
   if [ ! -s "$STATE/home-before" ] && [ "${before%%/*}" != "$PKG" ]; then echo "$before" > "$STATE/home-before"; fi
   if [ ! -s "$STATE/screensaver-before" ]; then t settings get secure screensaver_components > "$STATE/screensaver-before"; fi
-  adb -s "$SERIAL" install --no-incremental -r "$HERE/build/platea-home.apk" | tail -1
+  local out; out="$(adb -s "$SERIAL" install --no-incremental -r "$apk" 2>&1 | tail -1)"
+  echo "$out"
+  case "$out" in
+    *INSTALL_FAILED_UPDATE_INCOMPATIBLE*|*signatures\ do\ not\ match*)
+      echo "[!!] Platea Home is already installed with another signing key (another build or the release APK)."
+      echo "     Run ./platea-home.sh restore first, then install again."; exit 1 ;;
+    *Success*) ;;
+    *) echo "[!!] The install failed: Home stays $before"; exit 1 ;;
+  esac
   # It must really open first; only then does it become Home.
   local start; start="$(t am start -W -n "$ACT")"
   echo "$start" | grep -q "Status: ok" || { echo "$start"; echo "[!!] Platea Home does not open: Home stays $before"; exit 1; }
@@ -111,5 +123,5 @@ case "${1:-}" in
   restore) restore ;;
   debloat) shift; debloat "$@" ;;
   status) status ;;
-  *) sed -n 2,11p "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  *) sed -n 2,12p "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

@@ -10,6 +10,52 @@ and its lists tested model by model, always fetched at their latest version. Pla
 **Using an AI coding agent?** (Claude Code, Codex, Gemini CLI…) Clone this repo, open it in the agent and paste
 [`PROMPT.md`](PROMPT.md). The agent follows [`AGENTS.md`](AGENTS.md).
 
+<p align="center">
+  <img src="docs/screenshots/home.jpg" width="100%" alt="Home: the text top shelf for Prime Video above a dock of six apps, with a dimmed row of other apps below">
+</p>
+<p align="center">
+  <img src="docs/screenshots/menu.jpg" width="49%" alt="Holding OK on YouTube: Move, Remove from dock, Hide, App info">
+  <img src="docs/screenshots/quick.jpg" width="49%" alt="The quick settings panel over a dimmed Home, with the volume bar">
+  <img src="docs/screenshots/inputs.jpg" width="49%" alt="The Inputs panel: Live TV, the HDMI ports and an HDMI-CEC device that is on">
+  <img src="docs/screenshots/settings.jpg" width="49%" alt="Launcher settings with the three palettes previewed">
+  <img src="docs/screenshots/apps.jpg" width="49%" alt="The Apps page, six per row, dock apps marked with a dot">
+  <img src="docs/screenshots/sipario.jpg" width="49%" alt="The Sipario screen saver: the time, a line and the date on black">
+</p>
+<p align="center"><sub>Real screenshots from a Sony BRAVIA set to Italian. The interface follows the TV's language (English or Italian).</sub></p>
+
+## Quick start
+**With an AI agent:** clone the repo, open it in the agent and paste [`PROMPT.md`](PROMPT.md).
+
+**By hand**, with no build tools (just [`adb`](https://developer.android.com/tools/releases/platform-tools)):
+1. On the TV, turn on **Developer options** (Settings → System → About, press *Build* 7 times) and then **USB / network
+   debugging**. Note the TV's IP address, shown under Settings → Network.
+2. Clone this repo and download `platea-home.apk` from [Releases](../../releases):
+   ```bash
+   git clone https://github.com/Gionnio/platea-home && cd platea-home
+   ```
+3. Install it and make it Home. Press **Allow** on the TV the first time:
+   ```bash
+   APK=platea-home.apk SIPARIO=1 TV_HOST=192.168.1.50 ./platea-home.sh install
+   ```
+4. Optional: debloat with the CleanYourTV list for your exact model. Read the list first, and comment out the apps
+   you use:
+   ```bash
+   TV_HOST=192.168.1.50 ./platea-home.sh debloat examples/<your-model>/debloat.txt
+   ```
+5. To undo it all: `TV_HOST=192.168.1.50 ./platea-home.sh restore`. Undo the debloat with the
+   `tools/restore.sh` command that step 4 printed.
+
+The release APK starts with a default dock (YouTube, Netflix, Prime Video, Disney+, Play Store, Settings). Hold OK on
+an app to change it, or build your own with a config (see below).
+
+## Tested on
+| TV | Android | Result |
+|---|---|---|
+| Sony BRAVIA (VH1 platform, 2020), EU firmware | Android TV 12 | Everything works, including HDMI-CEC device names |
+
+**Testing it on another TV?** Please open an issue with the model, the Android version and firmware, what works and
+what doesn't, and screenshots. Do not include IP addresses or network names.
+
 ## What you get
 - **Home**:
   - the time and date, with three round buttons (Inputs, Network, Settings);

@@ -10,7 +10,52 @@ per modello, preso sempre all'ultima versione. Platea Home fa solo da Home.
 
 Design: il mockup "Platea Home" (Home, TV e ingressi, App, Sipario, pannelli). Font Figtree, palette Grafite.
 
-## Cosa c'è (versione 0.3)
+<p align="center">
+  <img src="docs/screenshots/home.jpg" width="100%" alt="La Home: top shelf testuale di Prime Video sopra il dock a sei app, con la riga attenuata delle altre app">
+</p>
+<p align="center">
+  <img src="docs/screenshots/menu.jpg" width="49%" alt="OK tenuto premuto su YouTube: Sposta, Togli dal dock, Nascondi, Info app">
+  <img src="docs/screenshots/quick.jpg" width="49%" alt="Il pannello rapido sopra la Home attenuata, con il volume">
+  <img src="docs/screenshots/inputs.jpg" width="49%" alt="Il pannello Ingressi: TV in diretta, le porte HDMI e un dispositivo HDMI-CEC acceso">
+  <img src="docs/screenshots/settings.jpg" width="49%" alt="Le impostazioni del launcher con l'anteprima delle tre palette">
+  <img src="docs/screenshots/apps.jpg" width="49%" alt="La pagina App, sei per riga, con il puntino sulle app del dock">
+  <img src="docs/screenshots/sipario.jpg" width="49%" alt="Il salvaschermo Sipario: ora, linea e data su nero">
+</p>
+<p align="center"><sub>Screenshot reali da una Sony BRAVIA in italiano.</sub></p>
+
+## Avvio rapido
+**Con un agente AI:** clona il repo, aprilo nell'agente e incolla [`PROMPT.md`](PROMPT.md).
+
+**A mano**, senza strumenti di build (serve solo [`adb`](https://developer.android.com/tools/releases/platform-tools)):
+1. Sulla TV attiva **Opzioni sviluppatore** (Impostazioni → Sistema → Info, premi *Build* 7 volte) e poi il **debug USB
+   / di rete**. Segnati l'indirizzo IP della TV, che trovi in Impostazioni → Rete.
+2. Clona il repo e scarica `platea-home.apk` dalle [Release](../../releases):
+   ```bash
+   git clone https://github.com/Gionnio/platea-home && cd platea-home
+   ```
+3. Installalo e rendilo la Home. La prima volta premi **Consenti** sulla TV:
+   ```bash
+   APK=platea-home.apk SIPARIO=1 TV_HOST=192.168.1.50 ./platea-home.sh install
+   ```
+4. Facoltativo: debloat con l'elenco CleanYourTV del tuo modello esatto. Leggi prima l'elenco e commenta le app che usi:
+   ```bash
+   TV_HOST=192.168.1.50 ./platea-home.sh debloat examples/<tuo-modello>/debloat.txt
+   ```
+5. Per tornare indietro: `TV_HOST=192.168.1.50 ./platea-home.sh restore`. Il debloat si annulla con il comando
+   `tools/restore.sh` che il passo 4 ha stampato.
+
+L'APK della release parte con un dock di serie (YouTube, Netflix, Prime Video, Disney+, Play Store, Impostazioni). Lo
+cambi tenendo premuto OK su un'app, oppure compilandolo con il tuo config (vedi sotto).
+
+## TV provate
+| TV | Android | Esito |
+|---|---|---|
+| Sony BRAVIA (piattaforma VH1, 2020), firmware EU | Android TV 12 | Tutto funziona, compresi i nomi dei dispositivi HDMI-CEC |
+
+**Lo provi su un'altra TV?** Apri una issue con modello, versione di Android e firmware, cosa va e cosa no, e gli
+screenshot. Senza indirizzi IP né nomi di rete.
+
+## Cosa c'è (versione 0.4)
 - **Home**:
   - ora e data, con tre pulsanti tondi: Ingressi, Rete, Impostazioni;
   - top shelf testuale: categoria, nome dell'app, una riga;
