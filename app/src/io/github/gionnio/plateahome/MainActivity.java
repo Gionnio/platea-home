@@ -88,7 +88,22 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         dp.leftMargin = ui.px(18);
         head.addView(clock);
         head.addView(date, dp);
-        root.addView(head, ui.at(LEFT, 56, -2, -2));
+
+        // Ora e pulsanti nella stessa riga, centrati sulla stessa linea orizzontale.
+        LinearLayout bar = new LinearLayout(this);
+        bar.setOrientation(LinearLayout.HORIZONTAL);
+        bar.setBaselineAligned(false);
+        bar.setGravity(Gravity.CENTER_VERTICAL);
+        bar.setClipChildren(false);
+        bar.setClipToPadding(false);
+        bar.addView(head, new LinearLayout.LayoutParams(-2, -2));
+        bar.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
+        FrameLayout.LayoutParams barp = new FrameLayout.LayoutParams(-1, ui.px(60));
+        barp.gravity = Gravity.TOP | Gravity.START;
+        barp.leftMargin = ui.px(LEFT);
+        barp.rightMargin = ui.px(LEFT);
+        barp.topMargin = ui.px(50);
+        root.addView(bar, barp);
 
         LinearLayout buttons = new LinearLayout(this);
         buttons.setOrientation(LinearLayout.HORIZONTAL);
@@ -104,11 +119,7 @@ public final class MainActivity extends Activity implements TileView.Listener, P
             lp.leftMargin = ui.px(16);
             buttons.addView(btn, lp);
         }
-        FrameLayout.LayoutParams bp = new FrameLayout.LayoutParams(-2, -2);
-        bp.gravity = Gravity.TOP | Gravity.END;
-        bp.topMargin = ui.px(60);
-        bp.rightMargin = ui.px(LEFT);
-        root.addView(buttons, bp);
+        bar.addView(buttons, new LinearLayout.LayoutParams(-2, -2));
 
         LinearLayout shelf = new LinearLayout(this);
         shelf.setOrientation(LinearLayout.VERTICAL);
