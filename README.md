@@ -22,7 +22,7 @@ Design: il mockup "Platea Home" (Home, TV e ingressi, App, Sipario, pannelli). F
 - **Impostazioni del launcher**: app nel dock e nascoste, palette (Grafite, Notte blu, Giorno) con anteprima, animazioni ridotte, Sipario, Home predefinita, informazioni.
 - **Peso**: APK di circa 84 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM appena avviata e circa 39 MB dopo aver aperto pannelli e impostazioni.
 
-Da fare: scelta della lingua (oggi solo italiano), test sui telefoni di altre marche.
+Da fare: scelta della lingua (oggi solo italiano), prove su TV di altre marche (TCL, box Google TV).
 
 ## Comandi
 | Comando | Cosa fa |
@@ -47,7 +47,7 @@ Un file JSON messo nell'APK alla build (`config/default.json` di serie):
 |---|---|
 | `dock` | Le app del dock, in ordine (massimo 6; quelle non installate si saltano) |
 | `hidden` | App da non mostrare nella riga della Home (restano nella pagina App) |
-| `live_tv` | App della TV in diretta, usata dal pulsante Ingressi se la TV non ha il selettore di sistema |
+| `live_tv` | App della TV in diretta, aperta dalla voce "TV in diretta" del pannello Ingressi |
 | `palette` | `Grafite`, `Notte blu`, `Giorno` (si cambia anche dalle impostazioni sulla TV) |
 | `sipario_palette` | `Nero`, `Grafite`, `Notte blu` |
 | `lines` | `{"pacchetto": ["CATEGORIA", "riga"]}` in aggiunta a quelle di serie (`Config.java`) |
