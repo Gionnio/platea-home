@@ -25,6 +25,7 @@ import java.util.Set;
  * il dock a 6 app e una riga attenuata con le altre app e "Tutte le app". Nessuna rete, nessuna immagine di sfondo.
  */
 public final class MainActivity extends Activity implements TileView.Listener, Panels.Host {
+    static final String EXTRA_PLACE = "io.github.gionnio.plateahome.PLACE";
     private static final int DOCK = 6, ROW = 5;
     private static final float LEFT = 112, TILE_W = 256, TILE_H = 144, GAP = 32;
 
@@ -38,6 +39,13 @@ public final class MainActivity extends Activity implements TileView.Listener, P
     private final List<TileView> dockTiles = new ArrayList<>(), rowTiles = new ArrayList<>();
 
     private int moving = -1;
+    /** App appena aggiunta al dock e in modalità Sposta: confermata, esce dalle nascoste. */
+    private String adding;
+    /** App da mettere nel dock pieno (modalità Sostituisci) e la posizione scelta. */
+    private String placing;
+    private int placeSlot = -1;
+    /** App arrivata dalla pagina App con "Aggiungi al dock" / "Sostituisci nel dock", da piazzare dopo il reload. */
+    private String pendingPlace;
     private List<String> movingBackup;
     private boolean longFired;
     private PopupWindow menu;
@@ -187,12 +195,14 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         if (!Store.palette(this).equals(paletteName)) { recreate(); return; }
         updateClock();
         if (sheet == null) reload();
+        if (pendingPlace != null) { String p = pendingPlace; pendingPlace = null; startPlace(p); }
     }
 
     @Override protected void onPause() {
         super.onPause();
         if (menu != null) menu.dismiss();
         if (moving >= 0) endMove(false);
+        if (placing != null) endPlace(false);
     }
 
     @Override protected void onDestroy() {
@@ -205,7 +215,9 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         if (menu != null) menu.dismiss();
         close();
         if (moving >= 0) endMove(false);
-        if (!dockTiles.isEmpty() && dockTiles.get(0).getVisibility() == View.VISIBLE) dockTiles.get(0).requestFocus();
+        if (placing != null) endPlace(false);
+        pendingPlace = intent.getStringExtra(EXTRA_PLACE);
+        if (pendingPlace == null && !dockTiles.isEmpty() && dockTiles.get(0).getVisibility() == View.VISIBLE) dockTiles.get(0).requestFocus();
     }
 
     private void updateClock() {
@@ -221,19 +233,8 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         Set<String> hidden = Store.hidden(this);
         dock.clear();
         for (String p : Store.dock(this)) if (Apps.find(apps, p) != null && dock.size() < DOCK) dock.add(p);
-        for (int i = 0; i < DOCK; i++) {
-            TileView t = dockTiles.get(i);
-            if (i < dock.size()) { t.bind(Apps.find(apps, dock.get(i)), false); t.setVisibility(View.VISIBLE); }
-            else t.setVisibility(View.GONE);
-        }
-        List<Apps.App> rest = new ArrayList<>();
-        for (Apps.App a : apps) if (!dock.contains(a.pkg) && !hidden.contains(a.pkg)) rest.add(a);
-        for (int i = 0; i < ROW; i++) {
-            TileView t = rowTiles.get(i);
-            if (i < rest.size()) { t.bind(rest.get(i), false); t.setVisibility(View.VISIBLE); }
-            else t.setVisibility(View.GONE);
-        }
-        rowTiles.get(ROW).bind(null, true);
+        bindDock();
+        bindRow(hidden);
 
         View target = focusDock >= 0 && focusDock < dock.size() ? dockTiles.get(focusDock)
                 : focusRow >= 0 && rowTiles.get(focusRow).getVisibility() == View.VISIBLE ? rowTiles.get(focusRow)
@@ -243,10 +244,30 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         if (target instanceof TileView) onTileFocus((TileView) target, true);
     }
 
+    /** La riga sotto il dock: le prime app né nel dock né nascoste, poi "Tutte le app". */
+    private void bindRow(Set<String> hidden) {
+        List<Apps.App> rest = new ArrayList<>();
+        for (Apps.App a : apps) if (!dock.contains(a.pkg) && !hidden.contains(a.pkg)) rest.add(a);
+        for (int i = 0; i < ROW; i++) {
+            TileView t = rowTiles.get(i);
+            if (i < rest.size()) { t.bind(rest.get(i), false); t.setVisibility(View.VISIBLE); }
+            else t.setVisibility(View.GONE);
+        }
+        rowTiles.get(ROW).bind(null, true);
+    }
+
+    private void bindDock() {
+        for (int i = 0; i < DOCK; i++) {
+            TileView t = dockTiles.get(i);
+            if (i < dock.size()) { t.bind(Apps.find(apps, dock.get(i)), false); t.setVisibility(View.VISIBLE); }
+            else t.setVisibility(View.GONE);
+        }
+    }
+
     // ---- top shelf ---------------------------------------------------------------------------
 
     @Override public void onTileFocus(TileView t, boolean focused) {
-        if (!focused || moving >= 0) return;
+        if (!focused || moving >= 0 || placing != null) return;
         boolean inRow = rowTiles.contains(t);
         moreRow.animate().alpha(inRow ? 1f : 0.5f).setDuration(160).start();
         if (t.allApps) {
@@ -277,6 +298,17 @@ public final class MainActivity extends Activity implements TileView.Listener, P
                 return true;
             }
             return super.dispatchKeyEvent(e);
+        }
+
+        if (placing != null) {
+            if (e.getAction() == KeyEvent.ACTION_DOWN) {
+                if (code == KeyEvent.KEYCODE_DPAD_LEFT && placeSlot > 0) { placeSlot--; showPlace(); }
+                else if (code == KeyEvent.KEYCODE_DPAD_RIGHT && placeSlot < dock.size() - 1) { placeSlot++; showPlace(); }
+            } else if (e.getAction() == KeyEvent.ACTION_UP) {
+                if (ok) endPlace(true);
+                else if (code == KeyEvent.KEYCODE_BACK) endPlace(false);
+            }
+            return true;
         }
 
         if (moving >= 0) {
@@ -328,8 +360,8 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         if (index >= 0) {
             items.add(new TileMenu.Item(getString(R.string.move), () -> startMove(index)));
             items.add(new TileMenu.Item(getString(R.string.remove_from_dock), () -> { dock.remove(pkg); Store.setDock(this, dock); reload(); }));
-        } else if (dock.size() < DOCK) {
-            items.add(new TileMenu.Item(getString(R.string.add_to_dock), () -> { dock.add(pkg); Store.setDock(this, dock); reload(); }));
+        } else {
+            items.add(new TileMenu.Item(getString(dock.size() < DOCK ? R.string.add_to_dock : R.string.replace_in_dock), () -> startPlace(pkg)));
         }
         items.add(new TileMenu.Item(getString(R.string.hide), () -> {
             Set<String> h = Store.hidden(this); h.add(pkg); Store.setHidden(this, h);
@@ -371,10 +403,64 @@ public final class MainActivity extends Activity implements TileView.Listener, P
     private void endMove(boolean keep) {
         int at = moving;
         moving = -1;
-        if (keep) Store.setDock(this, dock);
+        if (keep) { Store.setDock(this, dock); unhide(adding); }
         else { dock.clear(); dock.addAll(movingBackup); }
+        adding = null;
         for (TileView t : dockTiles) { t.moving = false; t.setAlpha(1f); t.lift(1f, 0, 0); t.invalidate(); }
         reload();
         if (at >= 0 && at < dock.size()) dockTiles.get(at).requestFocus();
+    }
+
+    // ---- Aggiungi al dock / Sostituisci nel dock ------------------------------------------
+
+    /** Mette un'app nel dock scegliendo dove: in fondo e in modalità Sposta, o se il dock è pieno in modalità Sostituisci. */
+    private void startPlace(String pkg) {
+        if (pkg == null || Apps.find(apps, pkg) == null) return;
+        int at = dock.indexOf(pkg);
+        if (at >= 0) { dockTiles.get(at).requestFocus(); return; }
+        if (dock.size() < DOCK) {
+            adding = pkg;
+            dock.add(pkg);
+            bindDock();
+            bindRow(Store.hidden(this));
+            startMove(dock.size() - 1);
+        } else {
+            placing = pkg;
+            placeSlot = dock.size() - 1;
+            showPlace();
+        }
+    }
+
+    /** Sostituisci: la tessera scelta mostra l'app nuova, sollevata; le altre sono attenuate. */
+    private void showPlace() {
+        Apps.App app = Apps.find(apps, placing);
+        for (int i = 0; i < dock.size(); i++) {
+            TileView t = dockTiles.get(i);
+            boolean on = i == placeSlot;
+            t.bind(on ? app : Apps.find(apps, dock.get(i)), false);
+            t.moving = on;
+            t.setAlpha(on ? 1f : 0.55f);
+            if (on) t.lift(1.1f, -ui.px(34), -1.5f); else t.lift(1f, 0, 0);
+            t.invalidate();
+        }
+        dockTiles.get(placeSlot).requestFocus();
+        Apps.App old = Apps.find(apps, dock.get(placeSlot));
+        shelf(getString(R.string.replace_kind), app == null ? "" : app.label, getString(R.string.replace_hint, old == null ? "" : old.label));
+    }
+
+    private void endPlace(boolean keep) {
+        int at = placeSlot;
+        if (keep) { dock.set(placeSlot, placing); Store.setDock(this, dock); unhide(placing); }
+        placing = null;
+        placeSlot = -1;
+        for (TileView t : dockTiles) { t.moving = false; t.setAlpha(1f); t.lift(1f, 0, 0); t.invalidate(); }
+        reload();
+        if (at >= 0 && at < dock.size()) dockTiles.get(at).requestFocus();
+    }
+
+    private void unhide(String pkg) {
+        if (pkg == null) return;
+        Set<String> h = Store.hidden(this);
+        if (h.remove(pkg)) Store.setHidden(this, h);
     }
 }

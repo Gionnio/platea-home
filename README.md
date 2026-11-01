@@ -62,9 +62,12 @@ what doesn't, and screenshots. Do not include IP addresses or network names.
   - a text top shelf showing the focused app's category, name and one line about it;
   - a dock of 6 apps, where focus lifts the tile with a white border;
   - one dimmed row of other apps, ending with "All apps".
-- **Hold OK** on an app (or press Menu): Move, Remove from dock / Add to dock, Hide, App info.
+- **Hold OK** on an app (or press Menu): Move, Remove from dock, Add to dock, Hide, App info. **Add to dock** takes
+  you to Home with the app ready to move, so you pick its place. With a full dock it becomes **Replace in dock**:
+  Left and Right choose which app to replace.
 - **Move**: the app lifts; Left and Right move it, OK drops it, Back cancels.
-- **Apps**: every app, 6 per row. Dock apps have a dot, hidden apps are dimmed.
+- **Apps**: every app, 6 per row, wrapping from the end of a row to the next. Dock apps have a dot, hidden apps
+  are dimmed.
 - **Quick settings** (gear), as a side panel: Picture, Sound, Network, Inputs, TV settings, Launcher, and a volume
   bar (Left and Right).
 - **Network**: the connection type, internet yes or no, IP address, Wi-Fi name and speed, with shortcuts to the TV's

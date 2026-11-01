@@ -1,6 +1,7 @@
 package io.github.gionnio.plateahome;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -152,6 +153,13 @@ public final class AppsActivity extends Activity {
         boolean ok = code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
                 || code == KeyEvent.KEYCODE_NUMPAD_ENTER || code == KeyEvent.KEYCODE_BUTTON_A;
         View f = getCurrentFocus();
+        // A capo: Destra sull'ultima colonna va alla prima della riga sotto, Sinistra sulla prima all'ultima di sopra.
+        if (f instanceof TileView && e.getAction() == KeyEvent.ACTION_DOWN
+                && (code == KeyEvent.KEYCODE_DPAD_RIGHT || code == KeyEvent.KEYCODE_DPAD_LEFT)) {
+            int i = tiles.indexOf(f);
+            if (code == KeyEvent.KEYCODE_DPAD_RIGHT && i % COLS == COLS - 1 && i + 1 < tiles.size()) { tiles.get(i + 1).requestFocus(); return true; }
+            if (code == KeyEvent.KEYCODE_DPAD_LEFT && i % COLS == 0 && i > 0) { tiles.get(i - 1).requestFocus(); return true; }
+        }
         if (f instanceof TileView && (ok || code == KeyEvent.KEYCODE_MENU)) {
             TileView t = (TileView) f;
             if (code == KeyEvent.KEYCODE_MENU) {
@@ -175,6 +183,13 @@ public final class AppsActivity extends Activity {
         return super.dispatchKeyEvent(e);
     }
 
+    /** Alla Home, con l'app in modalità Sposta (o Sostituisci, se il dock è pieno) per scegliere dove metterla. */
+    private void place(String pkg) {
+        startActivity(new Intent(this, MainActivity.class).putExtra(MainActivity.EXTRA_PLACE, pkg)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+        finish();
+    }
+
     private void showMenu(TileView t) {
         if (t.app == null) return;
         final String pkg = t.app.pkg;
@@ -182,9 +197,7 @@ public final class AppsActivity extends Activity {
         final Set<String> hidden = Store.hidden(this);
         List<TileMenu.Item> items = new ArrayList<>();
         if (dock.contains(pkg)) items.add(new TileMenu.Item(getString(R.string.remove_from_dock), () -> { dock.remove(pkg); Store.setDock(this, dock); fill(); }));
-        else if (dock.size() < 6) items.add(new TileMenu.Item(getString(R.string.add_to_dock), () -> {
-            dock.add(pkg); Store.setDock(this, dock); hidden.remove(pkg); Store.setHidden(this, hidden); fill();
-        }));
+        else items.add(new TileMenu.Item(getString(dock.size() < 6 ? R.string.add_to_dock : R.string.replace_in_dock), () -> place(pkg)));
         if (hidden.contains(pkg)) items.add(new TileMenu.Item(getString(R.string.show_on_home), () -> { hidden.remove(pkg); Store.setHidden(this, hidden); fill(); }));
         else items.add(new TileMenu.Item(getString(R.string.hide_from_home), () -> { hidden.add(pkg); Store.setHidden(this, hidden); fill(); }));
         items.add(new TileMenu.Item(getString(R.string.app_info), () -> Apps.info(this, pkg)));

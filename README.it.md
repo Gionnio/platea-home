@@ -55,15 +55,18 @@ cambi tenendo premuto OK su un'app, oppure compilandolo con il tuo config (vedi 
 **Lo provi su un'altra TV?** Apri una issue con modello, versione di Android e firmware, cosa va e cosa no, e gli
 screenshot. Senza indirizzi IP né nomi di rete.
 
-## Cosa c'è (versione 0.4)
+## Cosa c'è (versione 0.5)
 - **Home**:
   - ora e data, con tre pulsanti tondi: Ingressi, Rete, Impostazioni;
   - top shelf testuale: categoria, nome dell'app, una riga;
   - dock a 6 app, con il focus bianco che solleva la tessera;
   - una riga attenuata con le altre app e "Tutte le app".
-- **OK tenuto premuto** su un'app (oppure il tasto Menu): Sposta, Togli dal dock / Aggiungi al dock, Nascondi, Info app.
+- **OK tenuto premuto** su un'app (oppure il tasto Menu): Sposta, Togli dal dock, Aggiungi al dock, Nascondi, Info app.
+  **Aggiungi al dock** porta alla Home con l'app pronta da spostare, così scegli il posto. Con il dock pieno diventa
+  **Sostituisci nel dock**: Sinistra e Destra scelgono quale app sostituire.
 - **Sposta**: l'app si solleva; Sinistra e Destra la spostano, OK la posa, Indietro annulla.
-- **App**: tutte le app, 6 per riga. Le app del dock hanno un puntino, quelle nascoste sono attenuate.
+- **App**: tutte le app, 6 per riga, e dalla fine di una riga si passa alla successiva. Le app del dock hanno un
+  puntino, quelle nascoste sono attenuate.
 - **Sipario**: salvaschermo con ora, linea e data su nero, che si sposta un poco ogni minuto.
 - **Pannello rapido** (ingranaggio): Immagine, Audio, Rete, Ingressi, Impostazioni TV, Launcher, più il volume regolabile con Sinistra e Destra.
 - **Rete**: tipo di connessione, se c'è internet, indirizzo, nome e velocità del Wi-Fi; scorciatoie alle impostazioni di rete. Legge lo stato con due permessi "normali": nessun accesso a internet.

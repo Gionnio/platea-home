@@ -18,6 +18,9 @@
     <string name="remove_from_dock">Remove from dock</string>
     <string name="add_to_dock">Add to dock</string>
     <string name="hide">Hide</string>
+    <string name="replace_in_dock">Replace in dock</string>
+    <string name="replace_kind">REPLACE</string>
+    <string name="replace_hint">Left and Right to choose · OK replaces %1$s · Back to cancel</string>
     <string name="app_info">App info</string>
     <string name="cannot_open">This app can’t be opened</string>
     <string name="open_failed">Couldn’t open the app</string>
