@@ -1,48 +1,64 @@
 # Platea Home
 
-Un launcher per Android TV e Google TV in stile tvOS: minimale, senza pubblicità, senza accesso a internet.
-È il launcher di [CleanYourTV](https://github.com/Gathin23/cleanyourtv) con uno stile diverso, compilato ogni volta
-sopra **l'ultima versione** di CleanYourTV: il debloat, gli elenchi per modello, l'installazione sicura della Home e il
-ripristino restano quelli di CleanYourTV.
+Un launcher per Android TV e Google TV in stile tvOS: minimale, senza pubblicità, **senza accesso a internet**.
+Il debloat non è nostro: è quello di [CleanYourTV](https://github.com/Gathin23/cleanyourtv), con i suoi elenchi testati
+per modello, preso sempre all'ultima versione. Platea Home fa solo da Home.
 
 Design: il mockup "Platea Home" (Home, TV e ingressi, App, Sipario, pannelli). Font Figtree, palette Grafite.
 
-## Come funziona
-`platea-home.sh build`:
-1. scarica o aggiorna CleanYourTV in `.cache/` e ne estrae la versione richiesta (di serie l'ultima) in `build/cyt/`;
-2. copia sopra `overlay/` (file nuovi o sostituiti: font, testi, codice nuovo);
-3. applica `patches/apply.py`, le poche modifiche al codice di CleanYourTV: ognuna deve trovare il suo punto esatto;
-4. compila con Gradle.
+## Cosa c'è (versione 0.1)
+- **Home**:
+  - ora e data, con tre pulsanti tondi: Ingressi, Rete, Impostazioni;
+  - top shelf testuale: categoria, nome dell'app, una riga;
+  - dock a 6 app, con il focus bianco che solleva la tessera;
+  - una riga attenuata con le altre app e "Tutte le app".
+- **OK tenuto premuto** su un'app (oppure il tasto Menu): Sposta, Togli dal dock / Aggiungi al dock, Nascondi, Info app.
+- **Sposta**: l'app si solleva; Sinistra e Destra la spostano, OK la posa, Indietro annulla.
+- **App**: tutte le app, 6 per riga. Le app del dock hanno un puntino, quelle nascoste sono attenuate.
+- **Sipario**: salvaschermo con ora, linea e data su nero, che si sposta un poco ogni minuto.
+- **Peso**: APK di circa 72 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM a regime.
 
-Se l'ultima versione di CleanYourTV non si applica o non compila, lo script torna da solo all'ultima versione buona
-(`state/last-good`), così la TV non resta mai senza Home. Prima di compilare mostra cosa è cambiato nel launcher upstream.
+Da fare: pannelli laterali (rapido, Rete, Ingressi), impostazioni del launcher sulla TV, palette scelta dalla TV.
 
+## Comandi
 | Comando | Cosa fa |
 |---|---|
-| `./platea-home.sh build` | Compila sopra l'ultima CleanYourTV (`CYT_REF=<commit>` per una versione precisa) |
-| `TV_HOST=<ip> ./platea-home.sh install` | Compila e installa con `build-and-install.sh` di CleanYourTV (`STOCK_LAUNCHER=none` se la Home attuale non è un launcher di serie) |
-| `TV_HOST=<ip> ./platea-home.sh theme [cartella]` | Invia il tema (di serie `theme/`) |
-| `./platea-home.sh status` | Versione di CleanYourTV usata e ultima disponibile |
+| `./platea-home.sh build` | Compila `build/platea-home.apk` (`CONFIG=<json>` per la configurazione della TV) |
+| `TV_HOST=<ip> ./platea-home.sh install` | Installa e rende Home in modo sicuro (`SIPARIO=1` imposta anche il salvaschermo) |
+| `TV_HOST=<ip> ./platea-home.sh debloat <elenco>` | Debloat con `tools/disable.sh` dell'ultima CleanYourTV (es. `examples/sony-bravia-4k-vh1/debloat.txt`) |
+| `TV_HOST=<ip> ./platea-home.sh restore` | Ridà la Home e il salvaschermo di prima, riattiva i launcher di serie disattivati, rimuove Platea Home |
+| `TV_HOST=<ip> ./platea-home.sh status` | Home attuale, versione, memoria |
 
-Debloat e ripristino: `tools/disable.sh` e `tools/restore.sh` di CleanYourTV, con l'elenco del proprio modello.
+**Installazione sicura:**
+1. Platea Home deve aprirsi davvero (`am start -W`) prima di diventare la Home.
+2. Un launcher di serie Google viene disattivato solo se la TV continua a preferirlo.
+3. Se la Home non passa a Platea Home, torna quella di prima.
 
-## Cosa cambia rispetto a CleanYourTV
-| Parte | Come |
+Lo stato per ogni TV (Home e salvaschermo di prima, launcher disattivati) è in `state/<ip>/`.
+
+## Configurazione
+Un file JSON messo nell'APK alla build (`config/default.json` di serie):
+
+| Chiave | Significato |
 |---|---|
-| Stile (dock a 6, top shelf testuale, focus bianco, Grafite, pulsanti solo icona) | `theme/config.json`, chiavi documentate di CleanYourTV |
-| Font Figtree | `overlay/.../res/font/outfit.ttf` sostituito (licenza OFL in `overlay/launcher/`) |
-| Una riga sotto il nome dell'app ("La tua libreria, in direct play.") | `PlateaHomeText.java` + `platea_home.xml` nuovi, una sola inserzione in `MainActivity.updateHeroMeta` |
-| Nome del pacchetto | `APP_ID=...` (proprietà `launcherApplicationId` di CleanYourTV). Di serie resta `com.gathin.tvhome`, così funziona l'installer di CleanYourTV |
+| `dock` | Le app del dock, in ordine (massimo 6; quelle non installate si saltano) |
+| `hidden` | App da non mostrare nella riga della Home (restano nella pagina App) |
+| `live_tv` | App della TV in diretta, usata dal pulsante Ingressi se la TV non ha il selettore di sistema |
+| `palette` | `Grafite`, `Notte blu`, `Giorno` |
+| `sipario_palette` | `Nero`, `Grafite`, `Notte blu` |
+| `lines` | `{"pacchetto": ["CATEGORIA", "riga"]}` in aggiunta a quelle di serie (`Config.java`) |
 
-Da fare: riga di categoria sopra il nome, pannelli laterali (rapido, rete, ingressi), impostazioni, linea del Sipario.
+Le scelte fatte sulla TV (ordine del dock, app nascoste) restano sulla TV e vincono sul config.
 
-## Requisiti
-JDK 17 (`JAVA_HOME`), Android SDK con platform 34 e build-tools 34.0.0, Python 3, `adb`.
+## Build
+Senza Gradle: `aapt2`, `javac`, `d8`, `apksigner` (`build.sh`). Servono:
+- JDK 17 (`JAVA_HOME`, di serie Corretto 17);
+- Android SDK con `platforms;android-34` e `build-tools;36.0.0` (`ANDROID_HOME`, di serie quello di Homebrew).
+
+La chiave di firma si crea al primo build in `keys/platea-home.keystore`. **Non è su GitHub**: va tenuta in un posto
+sicuro, perché senza la stessa chiave l'app installata non si aggiorna e andrebbe disinstallata.
 
 ## Licenze
-- CleanYourTV: MIT, © 2026 Gathin. Il codice estratto in `build/` mantiene la sua licenza.
-- Figtree: SIL Open Font License 1.1, © The Figtree Project Authors.
-- Overlay, patch e script di questo repo: MIT (`LICENSE`).
-
-Per una versione pubblica: pacchetto rinominato (`APP_ID`), un installer nostro con gli stessi passaggi sicuri e una riga
-in `SHOWCASE.md` di CleanYourTV, come chiedono i loro `AGENTS.md`.
+- Codice di questo repo: MIT (`LICENSE`).
+- Figtree: SIL Open Font License 1.1, © The Figtree Project Authors (`app/assets/fonts/FIGTREE-OFL.txt`).
+- CleanYourTV (usato solo per il debloat, non incluso): MIT, © Gathin.

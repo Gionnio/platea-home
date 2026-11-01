@@ -1,0 +1,15 @@
+{
+  "dock": [
+    "com.github.gionnio.platea",
+    "io.gh.reisxd.tizentube.cobalt",
+    "com.amazon.amazonvideo.livingroom",
+    "com.apple.atve.androidtv.appletv",
+    "com.netflix.ninja",
+    "com.android.vending"
+  ],
+  "hidden": [],
+  "live_tv": "",
+  "palette": "Grafite",
+  "sipario_palette": "Nero",
+  "lines": {}
+}
