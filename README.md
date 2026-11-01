@@ -74,7 +74,8 @@ what doesn't, and screenshots. Do not include IP addresses or network names.
 - **Quick settings** (gear), as a side panel: Picture, Sound, Network, Inputs, TV settings, Launcher, and a volume
   bar (Left and Right).
 - **Network**: the connection type, internet yes or no, IP address, Wi-Fi name and speed, with shortcuts to the TV's
-  network settings.
+  network settings. Android only shows the Wi-Fi name to apps with the location permission: the install script grants
+  it, and the app never reads the location (it has no internet access anyway).
 - **Inputs**: Live TV (all tuners in one entry) and the HDMI ports, with the device name read over HDMI-CEC, on or in
   standby. Empty ports are folded under "Other inputs".
 - **Launcher settings**: the dock and hidden apps, the palette (Graphite, Night blue, Day) with a preview, reduced

@@ -60,7 +60,11 @@ install() {
     *Success*) ;;
     *) echo "[!!] The install failed: Home stays $before"; exit 1 ;;
   esac
-  # It must really open first; only then does it become Home.
+  # Android hides the Wi-Fi network name without the location permission: the Network panel needs it. No GPS, no internet.
+  t pm grant "$PKG" android.permission.ACCESS_FINE_LOCATION >/dev/null 2>&1 || true
+  t pm grant "$PKG" android.permission.ACCESS_COARSE_LOCATION >/dev/null 2>&1 || true
+  # It must really open first; only then does it become Home. On Fire OS this also matters after an update: the update
+  # closes Platea Home, and dumbtv's guard only reacts when Amazon's Home appears, so the next Home press would do nothing.
   local start; start="$(t am start -W -n "$ACT")"
   echo "$start" | grep -q "Status: ok" || { echo "$start"; echo "[!!] Platea Home does not open: Home stays $before"; exit 1; }
   if is_fireos; then

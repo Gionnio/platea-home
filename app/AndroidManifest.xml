@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.gionnio.plateahome"
-    android:versionCode="9"
-    android:versionName="0.6.0">
+    android:versionCode="10"
+    android:versionName="0.6.1">
 
     <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="34" />
 
@@ -13,6 +13,10 @@
          della connessione per il pannello Rete (permessi "normali", concessi all'installazione). -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- Solo per leggere il nome della rete Wi-Fi (Android lo nasconde senza permesso di posizione). Lo concede
+         platea-home.sh via ADB; l'app non usa la posizione e non ha accesso a internet. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <queries>
         <intent>

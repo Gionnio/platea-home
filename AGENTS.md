@@ -145,6 +145,10 @@ Fire OS keeps Amazon's Home whatever you set: `set-home-activity` answers `Succe
    - dumbtv's `scripts/restore.sh` undoes its debloat.
 
 ### Known pitfalls
+- **Fire TV after an update:** installing a new APK closes Platea Home. dumbtv's guard only reacts when Amazon's Home
+  appears, so if Amazon's Home is already in front the next Home press does nothing. `platea-home.sh install` reopens
+  Platea Home after the install. If you install with plain `adb install`, run
+  `am start -n io.github.gionnio.plateahome/.MainActivity` afterwards.
 - **Installing any other launcher resets the default Home** and Android shows the chooser. Run `platea-home.sh install`
   again (or `cmd package set-home-activity`) afterwards.
 - **A launcher's saved choices win over its config.** In Platea Home, `pm clear io.github.gionnio.plateahome` brings
@@ -156,7 +160,10 @@ Fire OS keeps Amazon's Home whatever you set: `set-home-activity` answers `Succe
 
 ### Rules
 - **No network:** no `INTERNET` permission, no analytics, no ads, no background services or polling. The only
-  permissions are `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE`, to show the connection.
+  permissions are:
+  - `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE`, to show the connection;
+  - `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`, only because Android hides the Wi-Fi name without them. The
+    install script grants them over ADB, and the app never reads the location.
 - **No libraries and no Gradle:** plain Java and Android views, built by `build.sh`, with `minSdk` 26.
 - **Light:**
   - the APK stays under 256 KB (about 100 KB today);
