@@ -8,7 +8,9 @@ Replace the two values in brackets.
 Set up Platea Home on my TV and debloat it. My TV is **[brand and model, e.g. Sony BRAVIA KD-55XH9096]** and its IP
 address is **[192.168.1.50]**. Reply to me in the language I am writing in.
 
-Follow `AGENTS.md` in this repository exactly, section "Job A: set up a TV". In short:
+Follow `AGENTS.md` in this repository exactly, section "Job A: set up a TV". **If my TV is a Fire TV (Fire OS)**, follow
+its "Fire TV path" instead: debloat with dumbtv, not CleanYourTV, and open Platea Home with dumbtv's patched Home
+guard. Otherwise, in short:
 
 1. Connect over ADB and check the TV (model, Android version, current Home, RAM, storage, whether it is on Wi-Fi
    or Ethernet, which apps I really use). Change nothing yet.

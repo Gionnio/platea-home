@@ -20,8 +20,10 @@ inside an app opens Platea Home. Details and measurements: [issue #2](https://gi
 You see about 0.3 seconds of black, then Platea Home.
 
 ## Steps
-1. **Debloat with dumbtv**, not with CleanYourTV, whose tools are not meant for Fire TV: follow dumbtv's README
-   (`configure.sh`, `debloat.sh`, `lockdown.sh`). Keep Prime Video (`com.amazon.firebat`) if you use it.
+1. **Debloat with dumbtv**, not with CleanYourTV, whose tools are not meant for Fire TV. Clone
+   `https://github.com/humblemuzzu/dumbtv` and follow its README or `AGENTS.md` (`configure.sh`, `debloat.sh`,
+   `lockdown.sh`). Say yes to **dumbtv home**: its guard is what opens Platea Home. Keep Prime Video
+   (`com.amazon.firebat`) if you use it.
 2. **Build Platea Home** with a Fire TV config. [`config/firetv.json`](../config/firetv.json) already hides Amazon's
    system screens; Platea Home also hides them on its own when it runs on Fire OS. Then install it:
    ```bash
@@ -29,8 +31,10 @@ You see about 0.3 seconds of black, then Platea Home.
    ```
    On Fire OS the script installs the app and sets the screen saver, but does not try to change Home.
    With the release APK use `APK=platea-home.apk` instead of `CONFIG=…`.
-3. **Patch and install dumbtv's Home guard.** It needs a JDK and the Android SDK with `platforms;android-25`:
+3. **Patch and install dumbtv's Home guard.** It needs a JDK and the Android SDK with `platforms;android-25`. Clone
+   dumbtv next to this repo (step 1 may already have done it):
    ```bash
+   git clone https://github.com/humblemuzzu/dumbtv
    cd dumbtv && git apply ../platea-home/firetv/dumbtv-guard.patch
    TV_HOST=<stick ip> ./launcher/install.sh --build
    ```

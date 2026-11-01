@@ -52,13 +52,8 @@ use its lists and tools, never write your own debloat lists or scripts here, and
   - the apps really used (`dumpsys usagestats`);
   - Wi-Fi or Ethernet, and the Wi-Fi owner.
 - Platea Home needs **Android 8.0 / API 26** or later. On anything older, stop and say so.
-- **Fire TV** follows its own path in [`firetv/README.md`](firetv/README.md):
-  - debloat with dumbtv, not CleanYourTV (`platea-home.sh debloat` refuses on Fire OS);
-  - build with a Fire TV config (start from `config/firetv.json`);
-  - `platea-home.sh install`, which on Fire OS installs without changing Home;
-  - patch and install dumbtv's Home guard;
-  - test with the physical remote.
-  Fire OS ignores `set-home-activity`: do not try to disable `com.amazon.tv.launcher`, which is protected.
+- **Fire TV** (`ro.product.manufacturer` is `Amazon`): stop here and follow **"Fire TV path"** below instead of
+  steps 2 to 5.
 - Samsung, LG and Roku are not Android TV.
 
 ### 2. Plan and questions
@@ -110,6 +105,44 @@ use its lists and tools, never write your own debloat lists or scripts here, and
   - `TV_HOST=<ip> ./platea-home.sh restore`;
   - CleanYourTV's `tools/restore.sh <list>`.
 - Ask whether to turn network ADB debugging off. Port 5555 is not encrypted, but the scripts above need it.
+
+### Fire TV path
+Fire OS keeps Amazon's Home whatever you set: `set-home-activity` answers `Success` and changes nothing, and
+`com.amazon.tv.launcher` is protected. Never try to disable it. Platea Home is opened instead by the Home guard of
+[dumbtv](https://github.com/humblemuzzu/dumbtv) (MIT), with this repo's patch. Background:
+[`firetv/README.md`](firetv/README.md).
+
+1. **Look first:** model, Fire OS version, installed packages, the apps really used. Show the plan and ask the same
+   questions as step 2, minus HbbTV and inputs (a stick has none).
+2. **Debloat with dumbtv, never CleanYourTV** (`platea-home.sh debloat` refuses on Fire OS):
+   1. `git clone https://github.com/humblemuzzu/dumbtv` next to this repo;
+   2. read dumbtv's own `AGENTS.md` and follow it for the debloat (`configure.sh`, `debloat.sh`, `lockdown.sh` and
+      its questions);
+   3. when it asks about **dumbtv home**, answer yes: its Home guard is what opens Platea Home. Its DNS filter is
+      the person's choice.
+   Keep Prime Video (`com.amazon.firebat`) and the Appstore (`com.amazon.venezia`) unless told otherwise.
+3. **Configure and install Platea Home:**
+   1. copy `config/firetv.json` to `config/<tv-name>.json`;
+   2. set the 6 dock apps, checked with `pm list packages`. Fire TV names differ: YouTube is
+      `com.amazon.firetv.youtube`, Prime Video `com.amazon.firebat`, Apple TV `com.apple.atve.amazon.appletv`;
+   3. run `CONFIG=config/<tv-name>.json SIPARIO=1 TV_HOST=<ip> ./platea-home.sh install`. On Fire OS it installs and
+      sets the screen saver, but does not touch Home.
+4. **Patch and install dumbtv's Home guard.** It needs `platforms;android-25` in the Android SDK:
+   ```bash
+   cd ../dumbtv && git apply ../platea-home/firetv/dumbtv-guard.patch
+   TV_HOST=<ip> ./launcher/install.sh --build
+   ```
+   If the patch does not apply, stop and report: do not hand-edit dumbtv's Guard.
+5. **Verify.** On Fire OS these results are expected:
+   - `cmd package resolve-activity … HOME` still answers `com.amazon.tv.launcher/...`;
+   - `settings get secure enabled_accessibility_services` contains `tv.dumbtv.home/tv.dumbtv.home.Guard`;
+   - `./platea-home.sh status` shows `dumbtv Home guard on`.
+   Then ask the person to press **Home on the physical remote** from inside an app, and to turn the stick off and on.
+   It must open Platea Home after about 0.3 s of black. An injected `input keyevent KEYCODE_HOME` passing proves nothing.
+6. **Undo:**
+   - `./platea-home.sh restore` removes Platea Home and puts the screen saver back;
+   - dumbtv's `launcher/install.sh --undo` gives Home back to Amazon;
+   - dumbtv's `scripts/restore.sh` undoes its debloat.
 
 ### Known pitfalls
 - **Installing any other launcher resets the default Home** and Android shows the chooser. Run `platea-home.sh install`
