@@ -51,7 +51,7 @@ cambi tenendo premuto OK su un'app, oppure compilandolo con il tuo config (vedi 
 | TV | Android | Esito |
 |---|---|---|
 | Sony BRAVIA (piattaforma VH1, 2020), firmware EU | Android TV 12 | Tutto funziona, compresi i nomi dei dispositivi HDMI-CEC |
-| TCL (piattaforma C06, firmware V8-T221T05-LF1V325; modello in vendita al dettaglio in attesa di conferma) | Android TV 11 | Schermata iniziale predefinita dopo il riavvio, persistenza del dock, app/ingressi/comandi rapidi/impostazioni, telecomandi fisici e Sipario funzionanti. I nomi dei dispositivi HDMI-CEC non sono stati testati in modo specifico. |
+| TCL (piattaforma C06, firmware V8-T221T05-LF1V325) | Android TV 11 | Schermata iniziale predefinita dopo il riavvio, persistenza del dock, app/ingressi/comandi rapidi/impostazioni, telecomandi fisici e Sipario funzionanti. I nomi dei dispositivi HDMI-CEC non sono stati testati in modo specifico. |
 
 **Lo provi su un'altra TV?** Apri una issue con modello, versione di Android e firmware, cosa va e cosa no, e gli
 screenshot. Senza indirizzi IP né nomi di rete.
