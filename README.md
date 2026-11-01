@@ -52,6 +52,7 @@ an app to change it, or build your own with a config (see below).
 | TV | Android | Result |
 |---|---|---|
 | Sony BRAVIA (VH1 platform, 2020), EU firmware | Android TV 12 | Everything works, including HDMI-CEC device names |
+| TCL (C06 platform, firmware V8-T221T05-LF1V325; retail model pending) | Android TV 11 | Default Home after reboot, dock persistence, Apps/Inputs/quick controls/settings, physical remote controls and Sipario passed. HDMI-CEC device names not specifically tested. |
 
 **Testing it on another TV?** Please open an issue with the model, the Android version and firmware, what works and
 what doesn't, and screenshots. Do not include IP addresses or network names.
