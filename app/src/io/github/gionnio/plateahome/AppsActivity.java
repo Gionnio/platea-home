@@ -43,17 +43,20 @@ public final class AppsActivity extends Activity {
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setClipChildren(false);
+        // La tessera col focus si ingrandisce e sconfina nel margine: senza questo, a destra e a sinistra viene tagliata.
+        col.setClipToPadding(false);
+        scroll.setClipToPadding(false);
         col.setPadding(ui.px(112), ui.px(56), ui.px(112), ui.px(96));
 
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
-        head.setGravity(Gravity.BOTTOM);
+        // Il conteggio poggia sulla linea di base di "App", come la data accanto all'ora nella Home.
+        head.setBaselineAligned(true);
         TextView title = ui.text(getString(R.string.apps_title), 56, pal.text, 600);
         title.setLetterSpacing(-0.02f);
         count = ui.text("", 22, pal.ter, 400);
         LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-2, -2);
         cp.leftMargin = ui.px(20);
-        cp.bottomMargin = ui.px(8);
         head.addView(title);
         head.addView(count, cp);
         col.addView(head);
@@ -61,6 +64,7 @@ public final class AppsActivity extends Activity {
         grid = new GridLayout(this);
         grid.setColumnCount(COLS);
         grid.setClipChildren(false);
+        grid.setClipToPadding(false);
         grid.setUseDefaultMargins(false);
         LinearLayout.LayoutParams gp = new LinearLayout.LayoutParams(-1, -2);
         gp.topMargin = ui.px(54);
