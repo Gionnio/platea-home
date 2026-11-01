@@ -1,11 +1,11 @@
 {
   "dock": [
-    "com.github.gionnio.platea",
-    "io.gh.reisxd.tizentube.cobalt",
-    "com.amazon.amazonvideo.livingroom",
-    "com.apple.atve.androidtv.appletv",
+    "com.google.android.youtube.tv",
     "com.netflix.ninja",
-    "com.android.vending"
+    "com.amazon.amazonvideo.livingroom",
+    "com.disney.disneyplus",
+    "com.android.vending",
+    "com.android.tv.settings"
   ],
   "hidden": [],
   "live_tv": "",

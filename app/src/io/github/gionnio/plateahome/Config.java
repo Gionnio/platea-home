@@ -64,12 +64,12 @@ final class Config {
     }
 
     private void defaults(Context context) {
-        dock.add("com.github.gionnio.platea");
-        dock.add("io.gh.reisxd.tizentube.cobalt");
-        dock.add("com.amazon.amazonvideo.livingroom");
-        dock.add("com.apple.atve.androidtv.appletv");
+        dock.add("com.google.android.youtube.tv");
         dock.add("com.netflix.ninja");
+        dock.add("com.amazon.amazonvideo.livingroom");
+        dock.add("com.disney.disneyplus");
         dock.add("com.android.vending");
+        dock.add("com.android.tv.settings");
         // Categoria e riga di serie per le app note, nella lingua della TV (res/values*/strings.xml).
         for (String item : context.getResources().getStringArray(R.array.default_lines)) {
             String[] f = item.split("\\|", 3);
