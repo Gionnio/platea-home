@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Platea Home: one line per app under its name on the top shelf, "package|line". -->
+<resources>
+    <string-array name="platea_home_lines" translatable="false">
+        <item>com.github.gionnio.platea|La tua libreria, in direct play.</item>
+        <item>io.gh.reisxd.tizentube.cobalt|YouTube, senza pubblicità.</item>
+        <item>com.google.android.youtube.tv|Video, musica e creator.</item>
+        <item>com.amazon.amazonvideo.livingroom|Film e serie del tuo abbonamento.</item>
+        <item>com.amazon.firebat|Film e serie del tuo abbonamento.</item>
+        <item>com.netflix.ninja|Film e serie del tuo abbonamento.</item>
+        <item>com.apple.atve.sony.appletv|Film e serie Apple.</item>
+        <item>com.apple.atve.androidtv.appletv|Film e serie Apple.</item>
+        <item>com.disney.disneyplus|Film e serie Disney, Pixar, Marvel.</item>
+        <item>com.sony.dtv.tvx|Digitale terrestre e ingressi HDMI.</item>
+        <item>com.mediatek.wwtv.tvcenter|Digitale terrestre e ingressi HDMI.</item>
+        <item>com.google.android.tv|Digitale terrestre e ingressi HDMI.</item>
+        <item>it.rainet.androidtv|Rai in diretta e on demand.</item>
+        <item>it.mediaset.infinitytv|Mediaset in diretta e on demand.</item>
+        <item>com.dazn|Sport in diretta.</item>
+        <item>com.nowtv.it|Cinema, serie e sport.</item>
+        <item>com.spotify.tv.android|Musica e podcast.</item>
+        <item>org.videolan.vlc|File e flussi video.</item>
+        <item>com.esaba.downloader|Scarica file e app.</item>
+        <item>com.mobisystems.fileman|I file della TV.</item>
+        <item>com.android.vending|App e giochi.</item>
+    </string-array>
+</resources>

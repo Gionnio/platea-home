@@ -1,0 +1,39 @@
+{
+  "dock_apps": [
+    "com.github.gionnio.platea",
+    "io.gh.reisxd.tizentube.cobalt",
+    "com.amazon.amazonvideo.livingroom",
+    "com.apple.atve.androidtv.appletv",
+    "com.netflix.ninja",
+    "com.android.vending"
+  ],
+  "fill_dock": false,
+  "columns": 6,
+  "rows_below_dock": 1,
+
+  "background_color": "#0F1013",
+  "wallpaper": false,
+  "cinematic_home": true,
+  "cinematic_art": 0,
+  "cinematic_scrim": 0,
+  "cinematic_dots": false,
+  "cinematic_white_focus": true,
+  "dock_title": true,
+  "ambient_glow": false,
+  "app_glow": false,
+  "glow_style": "off",
+  "dock_band": false,
+  "dock_glass": false,
+  "glass_style": "rim",
+  "focus_overshoot": false,
+  "advanced_effects": true,
+  "fade_rows": true,
+
+  "show_greeting": false,
+  "icon_only_buttons": true,
+  "icon_only_inputs": true,
+  "wifi_label_width": 0,
+  "tile_menu": true,
+
+  "clock_glow": false
+}
