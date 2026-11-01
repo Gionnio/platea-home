@@ -76,7 +76,7 @@ screenshot. Senza indirizzi IP né nomi di rete.
 - **Lingue**: inglese e italiano, secondo la lingua della TV.
 - **Peso**: APK di circa 100 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM appena avviata e circa 39 MB dopo aver aperto pannelli e impostazioni.
 
-Da fare: prove su TV di altre marche (TCL, box Google TV).
+Da fare: prove su altre marche e su un box Google TV.
 
 ## Comandi
 | Comando | Cosa fa |
