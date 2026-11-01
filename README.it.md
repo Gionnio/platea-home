@@ -44,13 +44,15 @@ Design: il mockup "Platea Home" (Home, TV e ingressi, App, Sipario, pannelli). F
 5. Per tornare indietro: `TV_HOST=192.168.1.50 ./platea-home.sh restore`. Il debloat si annulla con il comando
    `tools/restore.sh` che il passo 4 ha stampato.
 
-L'APK della release parte con un dock di serie (YouTube, Netflix, Prime Video, Disney+, Play Store, Impostazioni). Lo
+L'APK della release parte con un dock di serie fatto di YouTube, Netflix, Prime Video, Disney+, lo store e
+Impostazioni, o le loro versioni Fire TV, a seconda di quelle installate. Lo
 cambi tenendo premuto OK su un'app, oppure compilandolo con il tuo config (vedi sotto).
 
 ## TV provate
 | TV | Android | Esito |
 |---|---|---|
 | Sony BRAVIA (piattaforma VH1, 2020), firmware EU | Android TV 12 | Tutto funziona, compresi i nomi dei dispositivi HDMI-CEC |
+| Fire TV Stick 4K Max (2ª gen.), Fire OS 8.1.8.5, tramite il Guard di dumbtv ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Si avvia in Platea Home; Home da un'app lo apre; circa 34 MB di RAM |
 | TCL (piattaforma C06, firmware V8-T221T05-LF1V325) | Android TV 11 | Schermata iniziale predefinita dopo il riavvio, persistenza del dock, app/ingressi/comandi rapidi/impostazioni, telecomandi fisici e Sipario funzionanti. I nomi dei dispositivi HDMI-CEC non sono stati testati in modo specifico. |
 
 **Lo provi su un'altra TV?** Apri una issue con modello, versione di Android e firmware, cosa va e cosa no, e gli
@@ -77,6 +79,12 @@ screenshot. Senza indirizzi IP né nomi di rete.
 - **Peso**: APK di circa 100 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM appena avviata e circa 39 MB dopo aver aperto pannelli e impostazioni.
 
 Da fare: prove su altre marche e su un box Google TV.
+
+## Fire TV
+Fire OS tiene la Home di Amazon qualunque cosa si imposti, ma Platea Home funziona tramite il Guard di
+[dumbtv](https://github.com/humblemuzzu/dumbtv), con una piccola patch: istruzioni in [`firetv/README.md`](firetv/README.md)
+(in inglese). Su Fire OS `platea-home.sh` installa l'app senza provare a cambiare la Home, e Platea Home nasconde da solo
+le schermate di sistema di Amazon.
 
 ## Comandi
 | Comando | Cosa fa |

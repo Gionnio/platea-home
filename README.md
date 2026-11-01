@@ -45,13 +45,15 @@ and its lists tested model by model, always fetched at their latest version. Pla
 5. To undo it all: `TV_HOST=192.168.1.50 ./platea-home.sh restore`. Undo the debloat with the
    `tools/restore.sh` command that step 4 printed.
 
-The release APK starts with a default dock (YouTube, Netflix, Prime Video, Disney+, Play Store, Settings). Hold OK on
+The release APK starts with a default dock built from YouTube, Netflix, Prime Video, Disney+, the app store and
+Settings, or their Fire TV versions, whichever are installed. Hold OK on
 an app to change it, or build your own with a config (see below).
 
 ## Tested on
 | TV | Android | Result |
 |---|---|---|
 | Sony BRAVIA (VH1 platform, 2020), EU firmware | Android TV 12 | Everything works, including HDMI-CEC device names |
+| Fire TV Stick 4K Max (2nd gen), Fire OS 8.1.8.5, through dumbtv's Home guard ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Boots into Platea Home; Home from an app opens it; about 34 MB of RAM |
 | TCL (C06 platform, firmware V8-T221T05-LF1V325; retail model pending) | Android TV 11 | Default Home after reboot, dock persistence, Apps/Inputs/quick controls/settings, physical remote controls and Sipario passed. HDMI-CEC device names not specifically tested. |
 
 **Testing it on another TV?** Please open an issue with the model, the Android version and firmware, what works and
@@ -122,8 +124,13 @@ No Gradle: `build.sh` runs `aapt2`, `javac`, `d8` and `apksigner`. You need:
 The signing key is created on the first build in `keys/platea-home.keystore`, which is git-ignored. **Back it up**:
 without the same key the installed app cannot be updated and has to be removed first.
 
+## Fire TV
+Fire OS keeps Amazon's Home whatever you set, but Platea Home works through the Home guard of
+[dumbtv](https://github.com/humblemuzzu/dumbtv), with a small patch. See [`firetv/README.md`](firetv/README.md). On Fire
+OS, `platea-home.sh` installs the app without trying to change Home, and Platea Home hides Amazon's system screens on its
+own.
+
 ## Not supported
-- **Fire TV**: Fire OS does not let another app become Home.
 - **Samsung, LG and Roku**: they are not Android TV.
 
 ## Licences

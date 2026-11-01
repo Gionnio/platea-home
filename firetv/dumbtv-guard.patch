@@ -1,0 +1,55 @@
+diff --git a/launcher/src/tv/dumbtv/home/Guard.java b/launcher/src/tv/dumbtv/home/Guard.java
+index 583fc96..02cc443 100644
+--- a/launcher/src/tv/dumbtv/home/Guard.java
++++ b/launcher/src/tv/dumbtv/home/Guard.java
+@@ -93,10 +93,36 @@ public final class Guard extends AccessibilityService {
+         if (running != null) running.uncover();
+     }
+ 
++    /** Gionnio: the home shown in place of Amazon's, first one installed: Platea Home, then CleanYourTV. */
++    static final String[] TARGETS = {"io.github.gionnio.plateahome", "com.gathin.tvhome"};
++
++    private static String target(Context c) {
++        for (String t : TARGETS) {
++            try {
++                c.getPackageManager().getPackageInfo(t, 0);
++                return t;
++            } catch (android.content.pm.PackageManager.NameNotFoundException ignored) {
++            }
++        }
++        return null;
++    }
++
++    private static boolean isTarget(CharSequence pkg) {
++        for (String t : TARGETS) if (t.contentEquals(pkg)) return true;
++        return false;
++    }
++
+     private static PendingIntent launch(Context c) {
+-        Intent i = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+-                .setClass(c, Home.class)
+-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
++        // No CATEGORY_HOME: as a HOME start the target would become the home process and Android
++        // would then block the stock launcher's remote-button launches (cleanyourtv #1274).
++        String t = target(c);
++        Intent i = t != null
++                ? new Intent(Intent.ACTION_MAIN)
++                        .setComponent(new android.content.ComponentName(t, t + ".MainActivity"))
++                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
++                : new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
++                        .setClass(c, Home.class)
++                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+         return PendingIntent.getActivity(c, 0, i, PendingIntent.FLAG_UPDATE_CURRENT,
+                 ActivityOptions.makeCustomAnimation(c, 0, 0).toBundle());
+     }
+@@ -152,6 +178,10 @@ public final class Guard extends AccessibilityService {
+             if ("com.android.systemui".contentEquals(pkg) || "android".contentEquals(pkg)) return;
+             onAmazonHome = false;
+             paused = false;
++            if (isTarget(pkg)) {
++                uncover();
++                return;
++            }
+             if (!getPackageName().contentEquals(pkg)) arrived(this);
+             return;
+         }

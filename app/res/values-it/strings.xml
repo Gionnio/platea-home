@@ -127,5 +127,8 @@
         <item>com.mobisystems.fileman|STRUMENTI|I file della TV.</item>
         <item>com.android.vending|APP|App e giochi.</item>
         <item>com.android.tv.settings|SISTEMA|Tutte le impostazioni della TV.</item>
+        <item>com.amazon.firetv.youtube|VIDEO|Video, musica e creator.</item>
+        <item>com.apple.atve.amazon.appletv|STREAMING|Film e serie Apple.</item>
+        <item>com.amazon.venezia|APP|App e giochi.</item>
     </string-array>
 </resources>

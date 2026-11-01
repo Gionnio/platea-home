@@ -1,0 +1,27 @@
+{
+  "dock": [
+    "com.amazon.firetv.youtube",
+    "com.netflix.ninja",
+    "com.amazon.firebat",
+    "com.disney.disneyplus",
+    "com.apple.atve.amazon.appletv",
+    "com.amazon.venezia"
+  ],
+  "hidden": [
+    "com.amazon.tv.launcher",
+    "com.amazon.ftv.profilepicker",
+    "com.amazon.tv.earlyaccess",
+    "com.amazon.tv.ftvambient",
+    "com.amazon.ftv.screensaver",
+    "com.amazon.ssm",
+    "com.amazon.smarthomemapviewapp",
+    "com.amazon.whasettings",
+    "com.amazon.audiohome",
+    "com.amazon.firetv.troubleshooting",
+    "tv.dumbtv.home"
+  ],
+  "live_tv": "",
+  "palette": "Grafite",
+  "sipario_palette": "Nero",
+  "lines": {}
+}

@@ -1,10 +1,13 @@
 {
   "dock": [
     "com.google.android.youtube.tv",
+    "com.amazon.firetv.youtube",
     "com.netflix.ninja",
     "com.amazon.amazonvideo.livingroom",
+    "com.amazon.firebat",
     "com.disney.disneyplus",
     "com.android.vending",
+    "com.amazon.venezia",
     "com.android.tv.settings"
   ],
   "hidden": [],

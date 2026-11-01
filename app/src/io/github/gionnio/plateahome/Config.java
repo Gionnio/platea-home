@@ -60,16 +60,26 @@ final class Config {
         } catch (Exception ignored) {
             // Nessun config o config non valido: restano i valori di serie.
         }
+        if ("Amazon".equalsIgnoreCase(android.os.Build.MANUFACTURER)) {
+            // Fire OS lists system screens as launchable apps: keep them off Home (they stay on the Apps page).
+            for (String p : FIRE_OS_HIDDEN) c.hidden.add(p);
+        }
         return c;
     }
 
+    /** Fire OS: Amazon's own Home, profiles, screen savers and settings screens that show up as apps. */
+    static final String[] FIRE_OS_HIDDEN = {
+            "com.amazon.tv.launcher", "com.amazon.ftv.profilepicker", "com.amazon.tv.earlyaccess",
+            "com.amazon.tv.ftvambient", "com.amazon.ftv.screensaver", "com.amazon.ssm",
+            "com.amazon.smarthomemapviewapp", "com.amazon.whasettings", "com.amazon.audiohome",
+            "com.amazon.firetv.troubleshooting", "tv.dumbtv.home"
+    };
+
     private void defaults(Context context) {
-        dock.add("com.google.android.youtube.tv");
-        dock.add("com.netflix.ninja");
-        dock.add("com.amazon.amazonvideo.livingroom");
-        dock.add("com.disney.disneyplus");
-        dock.add("com.android.vending");
-        dock.add("com.android.tv.settings");
+        // More than 6 on purpose: apps that are not installed are skipped, so the same list fits Google TV and Fire TV.
+        for (String p : new String[]{"com.google.android.youtube.tv", "com.amazon.firetv.youtube", "com.netflix.ninja",
+                "com.amazon.amazonvideo.livingroom", "com.amazon.firebat", "com.disney.disneyplus",
+                "com.android.vending", "com.amazon.venezia", "com.android.tv.settings"}) dock.add(p);
         // Categoria e riga di serie per le app note, nella lingua della TV (res/values*/strings.xml).
         for (String item : context.getResources().getStringArray(R.array.default_lines)) {
             String[] f = item.split("\\|", 3);

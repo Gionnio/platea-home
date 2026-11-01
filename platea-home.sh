@@ -30,6 +30,17 @@ need_tv() {
 }
 t() { adb -s "$SERIAL" shell "$@" | tr -d '\r'; }
 home_now() { t cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME | tail -1; }
+# Fire OS keeps Amazon's Home whatever set-home-activity says: there dumbtv's Home guard opens Platea Home (firetv/README.md).
+is_fireos() { [ "$(t getprop ro.product.manufacturer)" = Amazon ] || t pm list packages com.amazon.tv.launcher | grep -qx package:com.amazon.tv.launcher; }
+guard_on() { t settings get secure enabled_accessibility_services | grep -q "tv.dumbtv.home/"; }
+restore_saver() {
+  local saver=""; [ -s "$STATE/screensaver-before" ] && saver="$(cat "$STATE/screensaver-before")"
+  if [ -n "$saver" ] && [ "$saver" != null ] && t pm list packages "${saver%%/*}" | grep -qx "package:${saver%%/*}"; then
+    t settings put secure screensaver_components "$saver"
+  elif [ "$(t settings get secure screensaver_components)" = "$PKG/.SiparioDream" ]; then
+    t settings delete secure screensaver_components >/dev/null
+  fi
+}
 
 install() {
   need_tv
@@ -52,6 +63,16 @@ install() {
   # It must really open first; only then does it become Home.
   local start; start="$(t am start -W -n "$ACT")"
   echo "$start" | grep -q "Status: ok" || { echo "$start"; echo "[!!] Platea Home does not open: Home stays $before"; exit 1; }
+  if is_fireos; then
+    if [ "${SIPARIO:-0}" = 1 ]; then t settings put secure screensaver_components "$PKG/.SiparioDream"; echo "[OK] Screen saver: Sipario"; fi
+    if guard_on; then
+      echo "[OK] Fire OS: Platea Home is installed and dumbtv's Home guard is on. Press Home on the real remote to check."
+    else
+      echo "[!!] Fire OS: Platea Home is installed, but Fire OS keeps Amazon's Home."
+      echo "     To open Platea Home with the Home button, set up dumbtv's Home guard: see firetv/README.md."
+    fi
+    return 0
+  fi
   t cmd package set-home-activity --user 0 "$ACT" >/dev/null
   local now; now="$(home_now)"
   if [ "$now" != "$ACT" ]; then
@@ -79,6 +100,15 @@ install() {
 
 restore() {
   need_tv
+  if is_fireos; then
+    restore_saver
+    t pm uninstall "$PKG" >/dev/null && echo "[OK] Platea Home removed"
+    rm -f "$STATE/home-before" "$STATE/screensaver-before"
+    if guard_on; then
+      echo "Fire OS: dumbtv's Home guard is still on. To give Home back to Amazon, run dumbtv's launcher/install.sh --undo."
+    fi
+    return 0
+  fi
   if [ -s "$STATE/disabled-by-platea-home" ]; then
     while read -r p; do [ -n "$p" ] && t pm enable --user 0 "$p" >/dev/null && echo "[OK] Enabled $p again"; done < "$STATE/disabled-by-platea-home"
     : > "$STATE/disabled-by-platea-home"
@@ -100,12 +130,7 @@ restore() {
     t pm enable --user 0 "${target%%/*}" >/dev/null && echo "[OK] Enabled ${target%%/*} again (it was disabled)"
   fi
   t cmd package set-home-activity --user 0 "$target" >/dev/null
-  local saver=""; [ -s "$STATE/screensaver-before" ] && saver="$(cat "$STATE/screensaver-before")"
-  if [ -n "$saver" ] && [ "$saver" != null ] && t pm list packages "${saver%%/*}" | grep -qx "package:${saver%%/*}"; then
-    t settings put secure screensaver_components "$saver"
-  elif [ "$(t settings get secure screensaver_components)" = "$PKG/.SiparioDream" ]; then
-    t settings delete secure screensaver_components >/dev/null
-  fi
+  restore_saver
   local now; now="$(home_now)"
   if [ "${now%%/*}" != "$PKG" ] && [ "${now%%/*}" != android ]; then
     t pm uninstall "$PKG" >/dev/null && echo "[OK] Platea Home removed"
@@ -119,6 +144,9 @@ restore() {
 debloat() {
   need_tv
   local list="${1:?give the list: examples/<model>/debloat.txt from CleanYourTV, or your own file}"
+  if is_fireos; then
+    echo "[!!] Fire OS: CleanYourTV is not meant for Fire TV. Debloat with dumbtv instead (see firetv/README.md)."; exit 1
+  fi
   if [ -d "$CACHE/.git" ]; then git -C "$CACHE" pull -q; else mkdir -p "$(dirname "$CACHE")"; git clone -q https://github.com/Gathin23/cleanyourtv "$CACHE"; fi
   [ -x "$CACHE/tools/venv/bin/python" ] || { python3 -m venv "$CACHE/tools/venv"; "$CACHE/tools/venv/bin/pip" install -q -r "$CACHE/tools/requirements.txt"; }
   [ -f "$list" ] || list="$CACHE/$list"
@@ -134,6 +162,7 @@ status() {
   echo "Version:      $(t dumpsys package $PKG | sed -n 's/^ *versionName=//p' | head -1)"
   echo "Memory:       $(t dumpsys meminfo $PKG | awk '/TOTAL PSS:/{print $3 " KB"; exit}')"
   echo "Screen saver: $(t settings get secure screensaver_components)"
+  if is_fireos; then echo "Fire OS:      yes, dumbtv Home guard $(guard_on && echo on || echo off)"; fi
 }
 
 case "${1:-}" in

@@ -52,7 +52,14 @@ use its lists and tools, never write your own debloat lists or scripts here, and
   - the apps really used (`dumpsys usagestats`);
   - Wi-Fi or Ethernet, and the Wi-Fi owner.
 - Platea Home needs **Android 8.0 / API 26** or later. On anything older, stop and say so.
-- **Fire TV** cannot be set up: Fire OS does not let another app become Home. Samsung, LG and Roku are not Android TV.
+- **Fire TV** follows its own path in [`firetv/README.md`](firetv/README.md):
+  - debloat with dumbtv, not CleanYourTV (`platea-home.sh debloat` refuses on Fire OS);
+  - build with a Fire TV config (start from `config/firetv.json`);
+  - `platea-home.sh install`, which on Fire OS installs without changing Home;
+  - patch and install dumbtv's Home guard;
+  - test with the physical remote.
+  Fire OS ignores `set-home-activity`: do not try to disable `com.amazon.tv.launcher`, which is protected.
+- Samsung, LG and Roku are not Android TV.
 
 ### 2. Plan and questions
 - Find the TV in CleanYourTV's `examples/`: `./platea-home.sh debloat` clones it into `.cache/cleanyourtv`, or clone
