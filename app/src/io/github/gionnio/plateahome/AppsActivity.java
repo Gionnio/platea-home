@@ -47,20 +47,27 @@ public final class AppsActivity extends Activity {
         // La tessera col focus si ingrandisce e sconfina nel margine: senza questo, a destra e a sinistra viene tagliata.
         col.setClipToPadding(false);
         scroll.setClipToPadding(false);
-        col.setPadding(ui.px(112), ui.px(56), ui.px(112), ui.px(96));
+        col.setPadding(ui.px(112), ui.px(50), ui.px(112), ui.px(96));
 
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
-        // Il conteggio poggia sulla linea di base di "App", come la data accanto all'ora nella Home.
+        // Stessa intestazione della Home: "App" come l'ora, il conteggio come la data (sulla sua linea di base),
+        // e il suggerimento a destra centrato sulla stessa riga, come i pulsanti.
         head.setBaselineAligned(true);
-        TextView title = ui.text(getString(R.string.apps_title), 56, pal.text, 600);
-        title.setLetterSpacing(-0.02f);
-        count = ui.text("", 22, pal.ter, 400);
+        TextView title = ui.text(getString(R.string.apps_title), 38, pal.text, 300);
+        count = ui.text("", 20, pal.ter, 500);
         LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-2, -2);
-        cp.leftMargin = ui.px(20);
+        cp.leftMargin = ui.px(18);
         head.addView(title);
         head.addView(count, cp);
-        col.addView(head);
+        LinearLayout bar = new LinearLayout(this);
+        bar.setOrientation(LinearLayout.HORIZONTAL);
+        bar.setBaselineAligned(false);
+        bar.setGravity(Gravity.CENTER_VERTICAL);
+        bar.addView(head, new LinearLayout.LayoutParams(-2, -2));
+        bar.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1f));
+        bar.addView(ui.text(getString(R.string.back_to_home), 20, pal.ter, 500), new LinearLayout.LayoutParams(-2, -2));
+        col.addView(bar, new LinearLayout.LayoutParams(-1, ui.px(60)));
 
         grid = new GridLayout(this);
         grid.setColumnCount(COLS);
@@ -68,17 +75,11 @@ public final class AppsActivity extends Activity {
         grid.setClipToPadding(false);
         grid.setUseDefaultMargins(false);
         LinearLayout.LayoutParams gp = new LinearLayout.LayoutParams(-1, -2);
-        gp.topMargin = ui.px(54);
+        gp.topMargin = ui.px(70);
         col.addView(grid, gp);
 
         scroll.addView(col);
         root.addView(scroll, new FrameLayout.LayoutParams(-1, -1));
-        TextView hint = ui.text(getString(R.string.back_to_home), 20, pal.ter, 500);
-        FrameLayout.LayoutParams hp = new FrameLayout.LayoutParams(-2, -2);
-        hp.gravity = Gravity.TOP | Gravity.END;
-        hp.topMargin = ui.px(76);
-        hp.rightMargin = ui.px(112);
-        root.addView(hint, hp);
         setContentView(root);
     }
 
