@@ -142,7 +142,8 @@ final class TileView extends View {
     }
 
     void lift(float scale, float dy, float rotation) {
-        animate().scaleX(scale).scaleY(scale).translationY(dy).rotation(rotation).setDuration(140).start();
+        animate().scaleX(scale).scaleY(scale).translationY(dy).rotation(rotation)
+                .setDuration(Store.reducedMotion(getContext()) ? 0 : 140).start();
         setElevation(scale > 1f ? ui.px(24) : 0);
     }
 }

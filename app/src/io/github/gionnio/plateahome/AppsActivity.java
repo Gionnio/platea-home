@@ -31,7 +31,7 @@ public final class AppsActivity extends Activity {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         ui = new Ui(this);
-        pal = Palette.of(Config.get(this).palette);
+        pal = Store.pal(this);
 
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(pal.ground);

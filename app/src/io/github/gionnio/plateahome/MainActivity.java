@@ -24,7 +24,7 @@ import java.util.Set;
  * La Home di Platea Home: ora e data, tre pulsanti tondi, il top shelf testuale (categoria, nome, una riga),
  * il dock a 6 app e una riga attenuata con le altre app e "Tutte le app". Nessuna rete, nessuna immagine di sfondo.
  */
-public final class MainActivity extends Activity implements TileView.Listener {
+public final class MainActivity extends Activity implements TileView.Listener, Panels.Host {
     private static final int DOCK = 6, ROW = 5;
     private static final float LEFT = 112, TILE_W = 256, TILE_H = 144, GAP = 32;
 
@@ -42,6 +42,10 @@ public final class MainActivity extends Activity implements TileView.Listener {
     private boolean longFired;
     private PopupWindow menu;
     private boolean receiversOn;
+    private FrameLayout screen, home;
+    private View sheet;
+    private View beforeSheet;
+    private String paletteName;
 
     private final BroadcastReceiver tick = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) { updateClock(); }
@@ -53,13 +57,16 @@ public final class MainActivity extends Activity implements TileView.Listener {
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         ui = new Ui(this);
-        pal = Palette.of(Config.get(this).palette);
+        paletteName = Store.palette(this);
+        pal = Palette.of(paletteName);
         build();
     }
 
     private void build() {
+        screen = new FrameLayout(this);
+        screen.setBackgroundColor(pal.ground);
         FrameLayout root = new FrameLayout(this);
-        root.setBackgroundColor(pal.ground);
+        home = root;
         root.setClipChildren(false);
         root.setClipToPadding(false);
 
@@ -82,8 +89,8 @@ public final class MainActivity extends Activity implements TileView.Listener {
         IconButton net = new IconButton(this, ui, pal, IconButton.NETWORK, "Rete");
         IconButton gear = new IconButton(this, ui, pal, IconButton.SETTINGS, "Impostazioni");
         inputs.setOnClickListener(v -> openInputs());
-        net.setOnClickListener(v -> Apps.action(this, Settings.ACTION_WIFI_SETTINGS, Settings.ACTION_WIRELESS_SETTINGS, Settings.ACTION_SETTINGS));
-        gear.setOnClickListener(v -> Apps.action(this, Settings.ACTION_SETTINGS));
+        net.setOnClickListener(v -> openNetwork());
+        gear.setOnClickListener(v -> openSheet(Panels.quick(this, ui, pal, this)));
         for (IconButton btn : new IconButton[]{inputs, net, gear}) {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ui.px(56), ui.px(56));
             lp.leftMargin = ui.px(16);
@@ -117,8 +124,35 @@ public final class MainActivity extends Activity implements TileView.Listener {
         for (int i = 0; i < DOCK; i++) dockTiles.add(tile(dockRow));
         for (int i = 0; i <= ROW; i++) rowTiles.add(tile(moreRow));
 
-        setContentView(root);
+        screen.setClipChildren(false);
+        screen.addView(root, new FrameLayout.LayoutParams(-1, -1));
+        setContentView(screen);
     }
+
+    // ---- pannelli laterali -------------------------------------------------------------------
+
+    private void openSheet(Sheet s) {
+        if (sheet != null) screen.removeView(sheet);
+        else beforeSheet = getCurrentFocus();
+        sheet = s.box;
+        screen.addView(sheet, s.params());
+        home.setAlpha(0.28f);
+        home.setDescendantFocusability(android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        sheet.post(() -> { if (sheet != null) sheet.requestFocus(View.FOCUS_DOWN); });
+    }
+
+    @Override public void close() {
+        if (sheet == null) return;
+        screen.removeView(sheet);
+        sheet = null;
+        home.setAlpha(1f);
+        home.setDescendantFocusability(android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        if (beforeSheet != null) beforeSheet.requestFocus();
+    }
+
+    @Override public void openNetwork() { openSheet(Panels.network(this, ui, pal)); }
+
+    @Override public void openInputs() { openSheet(Panels.inputs(this, ui, pal, Config.get(this).liveTv, this)); }
 
     private LinearLayout row(FrameLayout root, float top) {
         LinearLayout r = new LinearLayout(this);
@@ -150,8 +184,9 @@ public final class MainActivity extends Activity implements TileView.Listener {
             registerReceiver(packages, f);
             receiversOn = true;
         }
+        if (!Store.palette(this).equals(paletteName)) { recreate(); return; }
         updateClock();
-        reload();
+        if (sheet == null) reload();
     }
 
     @Override protected void onPause() {
@@ -168,6 +203,7 @@ public final class MainActivity extends Activity implements TileView.Listener {
     @Override protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (menu != null) menu.dismiss();
+        close();
         if (moving >= 0) endMove(false);
         if (!dockTiles.isEmpty() && dockTiles.get(0).getVisibility() == View.VISIBLE) dockTiles.get(0).requestFocus();
     }
@@ -235,6 +271,14 @@ public final class MainActivity extends Activity implements TileView.Listener {
         boolean ok = code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
                 || code == KeyEvent.KEYCODE_NUMPAD_ENTER || code == KeyEvent.KEYCODE_BUTTON_A;
 
+        if (sheet != null) {
+            if (code == KeyEvent.KEYCODE_BACK) {
+                if (e.getAction() == KeyEvent.ACTION_UP) close();
+                return true;
+            }
+            return super.dispatchKeyEvent(e);
+        }
+
         if (moving >= 0) {
             if (e.getAction() == KeyEvent.ACTION_DOWN) {
                 if (code == KeyEvent.KEYCODE_DPAD_LEFT) moveBy(-1);
@@ -274,12 +318,6 @@ public final class MainActivity extends Activity implements TileView.Listener {
     private void openTile(TileView t) {
         if (t.allApps) startActivity(new Intent(this, AppsActivity.class));
         else if (t.app != null) Apps.open(this, t.app.pkg);
-    }
-
-    private void openInputs() {
-        if (Apps.action(this, "com.android.tv.action.VIEW_INPUTS")) return;
-        String live = Config.get(this).liveTv;
-        if (!live.isEmpty()) Apps.open(this, live);
     }
 
     private void showMenu(TileView t) {

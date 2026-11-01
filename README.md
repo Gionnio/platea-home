@@ -6,7 +6,7 @@ per modello, preso sempre all'ultima versione. Platea Home fa solo da Home.
 
 Design: il mockup "Platea Home" (Home, TV e ingressi, App, Sipario, pannelli). Font Figtree, palette Grafite.
 
-## Cosa c'è (versione 0.1)
+## Cosa c'è (versione 0.2)
 - **Home**:
   - ora e data, con tre pulsanti tondi: Ingressi, Rete, Impostazioni;
   - top shelf testuale: categoria, nome dell'app, una riga;
@@ -16,9 +16,13 @@ Design: il mockup "Platea Home" (Home, TV e ingressi, App, Sipario, pannelli). F
 - **Sposta**: l'app si solleva; Sinistra e Destra la spostano, OK la posa, Indietro annulla.
 - **App**: tutte le app, 6 per riga. Le app del dock hanno un puntino, quelle nascoste sono attenuate.
 - **Sipario**: salvaschermo con ora, linea e data su nero, che si sposta un poco ogni minuto.
-- **Peso**: APK di circa 72 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM a regime.
+- **Pannello rapido** (ingranaggio): Immagine, Audio, Rete, Ingressi, Impostazioni TV, Launcher, più il volume regolabile con Sinistra e Destra.
+- **Rete**: tipo di connessione, se c'è internet, indirizzo, nome e velocità del Wi-Fi; scorciatoie alle impostazioni di rete. Legge lo stato con due permessi "normali": nessun accesso a internet.
+- **Ingressi**: TV in diretta (i sintonizzatori uniti in una voce) e porte HDMI con il nome del dispositivo CEC, acceso o in standby; le porte vuote sono raccolte in "Altri ingressi".
+- **Impostazioni del launcher**: app nel dock e nascoste, palette (Grafite, Notte blu, Giorno) con anteprima, animazioni ridotte, Sipario, Home predefinita, informazioni.
+- **Peso**: APK di circa 84 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM appena avviata e circa 39 MB dopo aver aperto pannelli e impostazioni.
 
-Da fare: pannelli laterali (rapido, Rete, Ingressi), impostazioni del launcher sulla TV, palette scelta dalla TV.
+Da fare: scelta della lingua (oggi solo italiano), test sui telefoni di altre marche.
 
 ## Comandi
 | Comando | Cosa fa |
@@ -44,7 +48,7 @@ Un file JSON messo nell'APK alla build (`config/default.json` di serie):
 | `dock` | Le app del dock, in ordine (massimo 6; quelle non installate si saltano) |
 | `hidden` | App da non mostrare nella riga della Home (restano nella pagina App) |
 | `live_tv` | App della TV in diretta, usata dal pulsante Ingressi se la TV non ha il selettore di sistema |
-| `palette` | `Grafite`, `Notte blu`, `Giorno` |
+| `palette` | `Grafite`, `Notte blu`, `Giorno` (si cambia anche dalle impostazioni sulla TV) |
 | `sipario_palette` | `Nero`, `Grafite`, `Notte blu` |
 | `lines` | `{"pacchetto": ["CATEGORIA", "riga"]}` in aggiunta a quelle di serie (`Config.java`) |
 

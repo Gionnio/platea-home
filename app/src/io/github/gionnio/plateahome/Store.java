@@ -38,4 +38,18 @@ final class Store {
     static void setHidden(Context c, Set<String> hidden) {
         prefs(c).edit().putString("hidden", String.join(",", hidden)).apply();
     }
+
+    /** La palette scelta sulla TV, altrimenti quella del config. */
+    static String palette(Context c) {
+        return prefs(c).getString("palette", Config.get(c).palette);
+    }
+
+    static void setPalette(Context c, String name) { prefs(c).edit().putString("palette", name).apply(); }
+
+    static Palette pal(Context c) { return Palette.of(palette(c)); }
+
+    /** Animazioni ridotte: niente sollevamento animato delle tessere. */
+    static boolean reducedMotion(Context c) { return prefs(c).getBoolean("reduced_motion", false); }
+
+    static void setReducedMotion(Context c, boolean on) { prefs(c).edit().putBoolean("reduced_motion", on).apply(); }
 }
