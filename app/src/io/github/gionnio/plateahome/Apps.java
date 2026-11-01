@@ -60,7 +60,7 @@ final class Apps {
             }
         }
         List<App> out = new ArrayList<>(byPkg.values());
-        Collator col = Collator.getInstance(Locale.ITALIAN);
+        Collator col = Collator.getInstance(Locale.getDefault());
         out.sort((x, y) -> col.compare(x.label, y.label));
         return out;
     }
@@ -74,10 +74,10 @@ final class Apps {
         PackageManager pm = c.getPackageManager();
         Intent i = pm.getLeanbackLaunchIntentForPackage(pkg);
         if (i == null) i = pm.getLaunchIntentForPackage(pkg);
-        if (i == null) { Toast.makeText(c, "Questa app non si può aprire", Toast.LENGTH_SHORT).show(); return; }
+        if (i == null) { Toast.makeText(c, c.getString(R.string.cannot_open), Toast.LENGTH_SHORT).show(); return; }
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try { c.startActivity(i); } catch (ActivityNotFoundException | SecurityException e) {
-            Toast.makeText(c, "Impossibile aprire l’app", Toast.LENGTH_SHORT).show();
+            Toast.makeText(c, c.getString(R.string.open_failed), Toast.LENGTH_SHORT).show();
         }
     }
 

@@ -48,7 +48,7 @@ public final class AppsActivity extends Activity {
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.BOTTOM);
-        TextView title = ui.text("App", 56, pal.text, 600);
+        TextView title = ui.text(getString(R.string.apps_title), 56, pal.text, 600);
         title.setLetterSpacing(-0.02f);
         count = ui.text("", 22, pal.ter, 400);
         LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(-2, -2);
@@ -68,7 +68,7 @@ public final class AppsActivity extends Activity {
 
         scroll.addView(col);
         root.addView(scroll, new FrameLayout.LayoutParams(-1, -1));
-        TextView hint = ui.text("Indietro per tornare alla Home", 20, pal.ter, 500);
+        TextView hint = ui.text(getString(R.string.back_to_home), 20, pal.ter, 500);
         FrameLayout.LayoutParams hp = new FrameLayout.LayoutParams(-2, -2);
         hp.gravity = Gravity.TOP | Gravity.END;
         hp.topMargin = ui.px(76);
@@ -97,7 +97,7 @@ public final class AppsActivity extends Activity {
         Set<String> hidden = Store.hidden(this);
         int inDock = 0;
         for (String p : dock) if (Apps.find(apps, p) != null) inDock++;
-        count.setText(apps.size() + " installate · " + inDock + " nel dock");
+        count.setText(getString(R.string.apps_count, apps.size(), inDock));
 
         int w = ui.px(256), h = ui.px(144);
         for (int i = 0; i < apps.size(); i++) {
@@ -177,13 +177,13 @@ public final class AppsActivity extends Activity {
         final List<String> dock = Store.dock(this);
         final Set<String> hidden = Store.hidden(this);
         List<TileMenu.Item> items = new ArrayList<>();
-        if (dock.contains(pkg)) items.add(new TileMenu.Item("Togli dal dock", () -> { dock.remove(pkg); Store.setDock(this, dock); fill(); }));
-        else if (dock.size() < 6) items.add(new TileMenu.Item("Aggiungi al dock", () -> {
+        if (dock.contains(pkg)) items.add(new TileMenu.Item(getString(R.string.remove_from_dock), () -> { dock.remove(pkg); Store.setDock(this, dock); fill(); }));
+        else if (dock.size() < 6) items.add(new TileMenu.Item(getString(R.string.add_to_dock), () -> {
             dock.add(pkg); Store.setDock(this, dock); hidden.remove(pkg); Store.setHidden(this, hidden); fill();
         }));
-        if (hidden.contains(pkg)) items.add(new TileMenu.Item("Mostra nella Home", () -> { hidden.remove(pkg); Store.setHidden(this, hidden); fill(); }));
-        else items.add(new TileMenu.Item("Nascondi dalla Home", () -> { hidden.add(pkg); Store.setHidden(this, hidden); fill(); }));
-        items.add(new TileMenu.Item("Info app", () -> Apps.info(this, pkg)));
+        if (hidden.contains(pkg)) items.add(new TileMenu.Item(getString(R.string.show_on_home), () -> { hidden.remove(pkg); Store.setHidden(this, hidden); fill(); }));
+        else items.add(new TileMenu.Item(getString(R.string.hide_from_home), () -> { hidden.add(pkg); Store.setHidden(this, hidden); fill(); }));
+        items.add(new TileMenu.Item(getString(R.string.app_info), () -> Apps.info(this, pkg)));
         menu = TileMenu.show(this, ui, pal, t, items.toArray(new TileMenu.Item[0]));
     }
 }

@@ -38,26 +38,28 @@ final class Panels {
     }
 
     private static final int GREEN = 0xFF34D399;
+    private static final String ETHERNET = "ethernet", WIFI = "wifi", OTHER = "other";
 
     private Panels() {}
 
     // ---- pannello rapido ---------------------------------------------------------------------
 
     static Sheet quick(Context c, Ui ui, Palette pal, Host host) {
-        Sheet s = new Sheet(c, ui, pal, "Impostazioni rapide", "Indietro per chiudere");
+        Sheet s = new Sheet(c, ui, pal, c.getString(R.string.quick_title), c.getString(R.string.back_to_close));
         Net net = Net.read(c);
         List<Input> inputs = inputs(c);
         // Il primo dispositivo acceso con un nome (CEC), altrimenti la prima porta collegata.
-        String inputSub = "Nessun ingresso collegato";
+        String inputSub = null;
         for (Input i : inputs) if (i.connected && !i.tuner && !i.name.equals(i.port)) { inputSub = i.name + " · " + i.port; break; }
-        if (inputSub.startsWith("Nessun")) for (Input i : inputs) if (i.connected && !i.tuner) { inputSub = i.port; break; }
+        if (inputSub == null) for (Input i : inputs) if (i.connected && !i.tuner) { inputSub = i.port; break; }
+        if (inputSub == null) inputSub = c.getString(R.string.no_input);
         String[][] tiles = {
-                {"Immagine", "Modalità e regolazioni"},
-                {"Audio", "Uscita e volume"},
-                {"Rete", net.summary()},
-                {"Ingressi", inputSub},
-                {"Impostazioni TV", "Tutte le opzioni di sistema"},
-                {"Launcher", "Dock, palette, salvaschermo"}
+                {c.getString(R.string.picture), c.getString(R.string.picture_sub)},
+                {c.getString(R.string.sound), c.getString(R.string.sound_sub)},
+                {c.getString(R.string.network), net.summary(c)},
+                {c.getString(R.string.inputs), inputSub},
+                {c.getString(R.string.tv_settings), c.getString(R.string.tv_settings_sub)},
+                {c.getString(R.string.launcher), c.getString(R.string.launcher_sub)}
         };
         Runnable[] actions = {
                 () -> Apps.action(c, Settings.ACTION_DISPLAY_SETTINGS, Settings.ACTION_SETTINGS),
@@ -84,7 +86,7 @@ final class Panels {
             s.box.addView(row, rp);
         }
         s.spacer();
-        s.section("VOLUME");
+        s.section(c.getString(R.string.volume_kind));
         VolumeBar vol = new VolumeBar(c, ui, pal);
         s.box.addView(vol, new LinearLayout.LayoutParams(-1, ui.px(56)));
         return s;
@@ -103,7 +105,7 @@ final class Panels {
             audio = c.getSystemService(AudioManager.class);
             setFocusable(true);
             setFocusableInTouchMode(true);
-            setContentDescription("Volume");
+            setContentDescription(c.getString(R.string.volume));
         }
 
         @Override public boolean onKeyDown(int code, KeyEvent e) {
@@ -155,14 +157,14 @@ final class Panels {
                 NetworkCapabilities caps = active == null ? null : cm.getNetworkCapabilities(active);
                 LinkProperties lp = active == null ? null : cm.getLinkProperties(active);
                 if (caps != null) {
-                    if (caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) n.type = "Ethernet";
-                    else if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) n.type = "Wi-Fi";
-                    else n.type = "Rete";
+                    if (caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) n.type = ETHERNET;
+                    else if (caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) n.type = WIFI;
+                    else n.type = OTHER;
                     n.internet = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
                 }
                 if (lp != null) for (LinkAddress a : lp.getLinkAddresses())
                     if (a.getAddress() instanceof Inet4Address) { n.ip = a.getAddress().getHostAddress(); break; }
-                if ("Wi-Fi".equals(n.type)) {
+                if (WIFI.equals(n.type)) {
                     WifiManager wm = c.getApplicationContext().getSystemService(WifiManager.class);
                     WifiInfo wi = wm == null ? null : wm.getConnectionInfo();
                     if (wi != null) {
@@ -175,15 +177,19 @@ final class Panels {
             return n;
         }
 
-        String summary() {
-            if (type.isEmpty()) return "Non connessa";
-            return type + (internet ? " · connessa" : " · senza internet");
+        String label(Context c) {
+            return ETHERNET.equals(type) ? c.getString(R.string.ethernet) : WIFI.equals(type) ? c.getString(R.string.wifi) : c.getString(R.string.network);
+        }
+
+        String summary(Context c) {
+            if (type.isEmpty()) return c.getString(R.string.not_connected);
+            return label(c) + c.getString(internet ? R.string.connected_suffix : R.string.no_internet_suffix);
         }
     }
 
     static Sheet network(Context c, Ui ui, Palette pal) {
         Net n = Net.read(c);
-        Sheet s = new Sheet(c, ui, pal, "Rete", n.type.isEmpty() ? "Non connessa" : n.internet ? "Connessa a internet" : "Connessa, ma senza internet");
+        Sheet s = new Sheet(c, ui, pal, c.getString(R.string.network), n.type.isEmpty() ? c.getString(R.string.not_connected) : n.internet ? c.getString(R.string.net_ok) : c.getString(R.string.net_no_internet));
 
         LinearLayout card = new LinearLayout(c);
         card.setOrientation(LinearLayout.VERTICAL);
@@ -195,28 +201,28 @@ final class Panels {
         card.setBackground(bg);
         LinearLayout top = new LinearLayout(c);
         top.setOrientation(LinearLayout.HORIZONTAL);
-        TextView kind = ui.text(n.type.isEmpty() ? "Nessuna rete" : n.type, 25, pal.text, 600);
+        TextView kind = ui.text(n.type.isEmpty() ? c.getString(R.string.no_network) : n.label(c), 25, pal.text, 600);
         top.addView(kind, new LinearLayout.LayoutParams(0, -2, 1f));
         if (!n.type.isEmpty()) {
-            TextView pill = ui.text(n.internet ? "ATTIVA" : "SENZA INTERNET", 15, n.internet ? GREEN : 0xFFF59E0B, 700);
+            TextView pill = ui.text(n.internet ? c.getString(R.string.active) : c.getString(R.string.no_internet_pill), 15, n.internet ? GREEN : 0xFFF59E0B, 700);
             pill.setLetterSpacing(0.1f);
             top.addView(pill);
         }
         card.addView(top, new LinearLayout.LayoutParams(-1, -2));
-        addFact(c, ui, pal, card, "Indirizzo", n.ip.isEmpty() ? "—" : n.ip);
-        if ("Wi-Fi".equals(n.type)) {
-            addFact(c, ui, pal, card, "Rete", n.wifiName.isEmpty() ? "nome non disponibile" : n.wifiName);
-            if (n.wifiMbps > 0) addFact(c, ui, pal, card, "Velocità", n.wifiMbps + " Mbit/s");
-        } else if ("Ethernet".equals(n.type)) {
-            addFact(c, ui, pal, card, "Collegamento", "via cavo");
+        addFact(c, ui, pal, card, c.getString(R.string.address), n.ip.isEmpty() ? "—" : n.ip);
+        if (WIFI.equals(n.type)) {
+            addFact(c, ui, pal, card, c.getString(R.string.wifi_name), n.wifiName.isEmpty() ? c.getString(R.string.name_unavailable) : n.wifiName);
+            if (n.wifiMbps > 0) addFact(c, ui, pal, card, c.getString(R.string.speed), c.getString(R.string.mbits, n.wifiMbps));
+        } else if (ETHERNET.equals(n.type)) {
+            addFact(c, ui, pal, card, c.getString(R.string.link), c.getString(R.string.cable));
         }
         s.box.addView(card, new LinearLayout.LayoutParams(-1, -2));
 
-        s.section("WI-FI");
-        s.row("Reti Wi-Fi", "Scegli o cambia rete nelle impostazioni della TV", 0,
+        s.section(c.getString(R.string.wifi).toUpperCase(java.util.Locale.getDefault()));
+        s.row(c.getString(R.string.wifi_networks), c.getString(R.string.wifi_networks_sub), 0,
                 () -> Apps.action(c, Settings.ACTION_WIFI_SETTINGS, Settings.ACTION_WIRELESS_SETTINGS, Settings.ACTION_SETTINGS));
         s.spacer();
-        s.row("Impostazioni di rete della TV", null, 0,
+        s.row(c.getString(R.string.tv_network_settings), null, 0,
                 () -> Apps.action(c, Settings.ACTION_WIRELESS_SETTINGS, Settings.ACTION_SETTINGS));
         return s;
     }
@@ -258,7 +264,7 @@ final class Panels {
                 if (tunerAdded) continue;
                 tunerAdded = true;
                 Input in = new Input();
-                in.id = i.getId(); in.tuner = true; in.name = "TV in diretta"; in.port = "Antenna"; in.connected = true;
+                in.id = i.getId(); in.tuner = true; in.name = c.getString(R.string.live_tv); in.port = c.getString(R.string.antenna); in.connected = true;
                 out.add(0, in);
                 continue;
             }
@@ -268,7 +274,7 @@ final class Panels {
             in.id = (child != null ? child : i).getId();
             CharSequence port = i.loadCustomLabel(c);
             if (port == null || port.length() == 0) port = i.loadLabel(c);
-            in.port = port == null ? "Ingresso" : port.toString();
+            in.port = port == null ? c.getString(R.string.input_generic) : port.toString();
             if (type == TvInputInfo.TYPE_HDMI) hdmi++;
             CharSequence dev = child == null ? null : child.loadLabel(c);
             in.name = dev != null && dev.length() > 0 ? dev.toString() : in.port;
@@ -282,21 +288,22 @@ final class Panels {
     }
 
     static Sheet inputs(Context c, Ui ui, Palette pal, String liveTv, Host host) {
-        Sheet s = new Sheet(c, ui, pal, "Ingressi", "I dispositivi si riconoscono via HDMI-CEC");
+        Sheet s = new Sheet(c, ui, pal, c.getString(R.string.inputs), c.getString(R.string.inputs_sub));
         List<Input> list = inputs(c);
         final List<Sheet.Item> hiddenRows = new ArrayList<>();
         for (Input in : list) {
-            String sub = in.tuner ? "Antenna" : in.name.equals(in.port) ? (in.connected ? "collegato" : in.standby ? "in standby" : "niente collegato")
-                    : in.port + (in.connected ? " · acceso" : in.standby ? " · in standby" : "");
+            String sub = in.tuner ? c.getString(R.string.antenna) : in.name.equals(in.port)
+                    ? c.getString(in.connected ? R.string.input_connected : in.standby ? R.string.input_standby : R.string.input_nothing)
+                    : in.port + (in.connected ? c.getString(R.string.on_suffix) : in.standby ? c.getString(R.string.standby_suffix) : "");
             int dot = in.connected ? GREEN : pal.line;
             final Input target = in;
             Sheet.Item row = s.row(in.name, sub, dot, () -> { host.close(); switchTo(c, target, liveTv); });
             if (!in.connected && !in.standby && !in.tuner) { row.setVisibility(View.GONE); hiddenRows.add(row); }
         }
-        if (list.isEmpty()) s.row("Nessun ingresso", "Questa TV non espone ingressi ad Android", 0, () -> { });
+        if (list.isEmpty()) s.row(c.getString(R.string.no_inputs), c.getString(R.string.no_inputs_sub), 0, () -> { });
         if (!hiddenRows.isEmpty()) {
             s.spacer();
-            final Sheet.Item more = s.row("Altri ingressi (" + hiddenRows.size() + ")", "Porte senza niente collegato", 0, () -> { });
+            final Sheet.Item more = s.row(c.getString(R.string.other_inputs, hiddenRows.size()), c.getString(R.string.other_inputs_sub), 0, () -> { });
             more.setOnClickListener(v -> {
                 for (Sheet.Item r : hiddenRows) r.setVisibility(View.VISIBLE);
                 more.setVisibility(View.GONE);

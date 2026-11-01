@@ -26,9 +26,12 @@ public final class SettingsActivity extends Activity {
     private TextView bigTitle, bigText;
     private LinearLayout swatches, list;
     private String paletteName;
+    /** La voce col focus prima di ricreare la pagina (cambio palette): ci si torna, così OK scorre le palette di fila. */
+    private int restoreFocus = -1;
 
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
+        if (b != null) restoreFocus = b.getInt("focus", -1);
         ui = new Ui(this);
         paletteName = Store.palette(this);
         pal = Palette.of(paletteName);
@@ -39,7 +42,7 @@ public final class SettingsActivity extends Activity {
         LinearLayout left = new LinearLayout(this);
         left.setOrientation(LinearLayout.VERTICAL);
         left.setGravity(Gravity.CENTER_VERTICAL);
-        TextView eyebrow = ui.text("IMPOSTAZIONI DEL LAUNCHER", 18, pal.ter, 600);
+        TextView eyebrow = ui.text(getString(R.string.settings_eyebrow), 18, pal.ter, 600);
         eyebrow.setLetterSpacing(0.18f);
         bigTitle = ui.text("", 72, pal.text, 600);
         bigTitle.setLetterSpacing(-0.03f);
@@ -79,9 +82,15 @@ public final class SettingsActivity extends Activity {
         fill();
     }
 
+    @Override protected void onSaveInstanceState(Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putInt("focus", list.indexOfChild(getCurrentFocus()));
+    }
+
     private void fill() {
         View f = getCurrentFocus();
         int focus = Math.max(0, list.indexOfChild(f));
+        if (restoreFocus >= 0) { focus = restoreFocus; restoreFocus = -1; }
         list.removeAllViews();
         List<Apps.App> apps = Apps.load(this);
         int dock = 0;
@@ -94,35 +103,42 @@ public final class SettingsActivity extends Activity {
         String version;
         try { version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName; } catch (Exception e) { version = "?"; }
 
-        header("HOME");
-        row("App nel dock", String.valueOf(dock), "App nel dock", "Le app della prima riga. Si cambiano dalla pagina App o tenendo premuto OK su un'app.", false,
+        header(getString(R.string.sec_home));
+        row(getString(R.string.dock_apps), String.valueOf(dock), getString(R.string.dock_apps), getString(R.string.dock_apps_text), false,
                 () -> startActivity(new Intent(this, AppsActivity.class)));
-        row("App nascoste", String.valueOf(hidden), "App nascoste", "Non compaiono nella riga della Home, ma restano nella pagina App.", false,
+        row(getString(R.string.hidden_apps), String.valueOf(hidden), getString(R.string.hidden_apps), getString(R.string.hidden_apps_text), false,
                 () -> startActivity(new Intent(this, AppsActivity.class)));
-        row("Palette", paletteName, "Palette", "I colori della Home. Il launcher resta neutro: i colori li portano le icone delle app. OK cambia palette.", true, () -> {
+        row(getString(R.string.palette), paletteLabel(paletteName), getString(R.string.palette), getString(R.string.palette_text), true, () -> {
             int i = 0;
             while (i < PALETTES.length && !PALETTES[i].equals(paletteName)) i++;
             Store.setPalette(this, PALETTES[(i + 1) % PALETTES.length]);
             recreate();
         });
-        header("MOVIMENTO");
+        header(getString(R.string.sec_motion));
         boolean reduced = Store.reducedMotion(this);
-        row("Animazioni", reduced ? "Ridotte" : "Normali", "Animazioni", "Ridotte: le tessere si sollevano senza animazione. Utile su TV lente.", false, () -> {
+        row(getString(R.string.animations), reduced ? getString(R.string.anim_reduced) : getString(R.string.anim_normal), getString(R.string.animations), getString(R.string.anim_text), false, () -> {
             Store.setReducedMotion(this, !Store.reducedMotion(this));
             fill();
         });
-        header("SALVASCHERMO");
-        row("Sipario", sipario ? "Attivo" : "Non attivo", "Sipario", "Ora e data su nero, senza immagini. OK apre le impostazioni del salvaschermo della TV.", false,
+        header(getString(R.string.sec_screensaver));
+        row(getString(R.string.sipario), sipario ? getString(R.string.state_on) : getString(R.string.state_off), getString(R.string.sipario), getString(R.string.sipario_text), false,
                 () -> Apps.action(this, Settings.ACTION_DREAM_SETTINGS, Settings.ACTION_SETTINGS));
-        header("SISTEMA");
-        row("Home predefinita", isHome ? "Platea Home" : "un'altra app", "Home predefinita", "L'app che si apre col tasto Home. Per tornare alla Home della TV usa lo script di ripristino dal Mac.", false,
+        header(getString(R.string.sec_system));
+        row(getString(R.string.default_home), isHome ? "Platea Home" : getString(R.string.another_app), getString(R.string.default_home), getString(R.string.default_home_text), false,
                 () -> Apps.action(this, Settings.ACTION_HOME_SETTINGS, Settings.ACTION_SETTINGS));
-        row("Informazioni", "Versione " + version, "Platea Home", "Versione " + version + ". Nessun accesso a internet, nessuna pubblicità, nessun dato raccolto.", false, () -> { });
+        row(getString(R.string.about), getString(R.string.version, version), "Platea Home", getString(R.string.about_text, version), false, () -> { });
 
         int i = Math.min(focus, list.getChildCount() - 1);
         View target = list.getChildAt(i);
         if (!(target != null && target.isFocusable())) target = list.getChildAt(1);
         target.requestFocus();
+    }
+
+    /** Nome della palette nella lingua della TV; il valore salvato resta quello del config (Grafite, Notte blu, Giorno). */
+    private String paletteLabel(String key) {
+        if ("Notte blu".equals(key)) return getString(R.string.palette_notte);
+        if ("Giorno".equals(key)) return getString(R.string.palette_giorno);
+        return getString(R.string.palette_grafite);
     }
 
     private void header(String label) {
@@ -174,7 +190,7 @@ public final class SettingsActivity extends Activity {
             LinearLayout col = new LinearLayout(this);
             col.setOrientation(LinearLayout.VERTICAL);
             col.addView(new Swatch(Palette.of(n), n.equals(paletteName)), new LinearLayout.LayoutParams(ui.px(180), ui.px(110)));
-            TextView t = ui.text(n, 20, n.equals(paletteName) ? pal.text : pal.ter, n.equals(paletteName) ? 600 : 400);
+            TextView t = ui.text(paletteLabel(n), 20, n.equals(paletteName) ? pal.text : pal.ter, n.equals(paletteName) ? 600 : 400);
             LinearLayout.LayoutParams tp = Sheet.wrap();
             tp.topMargin = ui.px(12);
             col.addView(t, tp);

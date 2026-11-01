@@ -49,11 +49,11 @@ final class TileView extends View {
     void bind(Apps.App app, boolean allApps) {
         this.app = app;
         this.allApps = allApps;
-        setContentDescription(allApps ? "Tutte le app" : app == null ? "" : app.label);
+        setContentDescription(allApps ? getContext().getString(R.string.all_apps) : app == null ? "" : app.label);
         invalidate();
     }
 
-    String label() { return allApps ? "Tutte le app" : app == null ? "" : app.label; }
+    String label() { return allApps ? getContext().getString(R.string.all_apps) : app == null ? "" : app.label; }
 
     @Override protected void onSizeChanged(int w, int h, int ow, int oh) {
         clip.reset();
@@ -82,7 +82,7 @@ final class TileView extends View {
                 app.icon().draw(c);
                 drawLabel(c, app.label, w, Math.round(h * 0.84f));
             }
-            if (allApps) drawLabel(c, "Tutte le app", w, Math.round(h * 0.80f));
+            if (allApps) drawLabel(c, getContext().getString(R.string.all_apps), w, Math.round(h * 0.80f));
         }
         c.restore();
 

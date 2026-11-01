@@ -72,12 +72,12 @@ public final class MainActivity extends Activity implements TileView.Listener, P
 
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
-        head.setGravity(Gravity.BOTTOM);
+        // La data poggia sulla stessa linea di base delle cifre dell'ora (non centrata, non in fondo al riquadro).
+        head.setBaselineAligned(true);
         clock = ui.text("", 38, pal.text, 300);
         date = ui.text("", 20, pal.ter, 500);
         LinearLayout.LayoutParams dp = new LinearLayout.LayoutParams(-2, -2);
         dp.leftMargin = ui.px(18);
-        dp.bottomMargin = ui.px(5);
         head.addView(clock);
         head.addView(date, dp);
         root.addView(head, ui.at(LEFT, 56, -2, -2));
@@ -85,9 +85,9 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         LinearLayout buttons = new LinearLayout(this);
         buttons.setOrientation(LinearLayout.HORIZONTAL);
         buttons.setClipChildren(false);
-        IconButton inputs = new IconButton(this, ui, pal, IconButton.INPUTS, "Ingressi");
-        IconButton net = new IconButton(this, ui, pal, IconButton.NETWORK, "Rete");
-        IconButton gear = new IconButton(this, ui, pal, IconButton.SETTINGS, "Impostazioni");
+        IconButton inputs = new IconButton(this, ui, pal, IconButton.INPUTS, getString(R.string.inputs));
+        IconButton net = new IconButton(this, ui, pal, IconButton.NETWORK, getString(R.string.network));
+        IconButton gear = new IconButton(this, ui, pal, IconButton.SETTINGS, getString(R.string.settings));
         inputs.setOnClickListener(v -> openInputs());
         net.setOnClickListener(v -> openNetwork());
         gear.setOnClickListener(v -> openSheet(Panels.quick(this, ui, pal, this)));
@@ -210,7 +210,7 @@ public final class MainActivity extends Activity implements TileView.Listener, P
 
     private void updateClock() {
         clock.setText(Ui.clock());
-        date.setText(Ui.today());
+        date.setText(Ui.today(this));
     }
 
     /** Ricarica app, dock e riga, tenendo il focus dov'era. */
@@ -250,16 +250,16 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         boolean inRow = rowTiles.contains(t);
         moreRow.animate().alpha(inRow ? 1f : 0.5f).setDuration(160).start();
         if (t.allApps) {
-            shelf("TUTTE LE APP", "App", apps.size() + " app installate");
+            shelf(getString(R.string.all_apps_kind), getString(R.string.apps_title), getString(R.string.apps_installed, apps.size()));
             return;
         }
         if (t.app == null) return;
         String[] l = Config.get(this).lines.get(t.app.pkg);
-        shelf(l == null ? "APP" : l[0], t.app.label, l == null ? "" : l[1]);
+        shelf(l == null ? getString(R.string.kind_app) : l[0], t.app.label, l == null ? "" : l[1]);
     }
 
     private void shelf(String kind, String title, String text) {
-        eyebrow.setText(kind.toUpperCase(Locale.ITALIAN));
+        eyebrow.setText(kind.toUpperCase(Locale.getDefault()));
         name.setText(title);
         line.setText(text);
     }
@@ -326,17 +326,17 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         int index = dockTiles.indexOf(t);
         List<TileMenu.Item> items = new ArrayList<>();
         if (index >= 0) {
-            items.add(new TileMenu.Item("Sposta", () -> startMove(index)));
-            items.add(new TileMenu.Item("Togli dal dock", () -> { dock.remove(pkg); Store.setDock(this, dock); reload(); }));
+            items.add(new TileMenu.Item(getString(R.string.move), () -> startMove(index)));
+            items.add(new TileMenu.Item(getString(R.string.remove_from_dock), () -> { dock.remove(pkg); Store.setDock(this, dock); reload(); }));
         } else if (dock.size() < DOCK) {
-            items.add(new TileMenu.Item("Aggiungi al dock", () -> { dock.add(pkg); Store.setDock(this, dock); reload(); }));
+            items.add(new TileMenu.Item(getString(R.string.add_to_dock), () -> { dock.add(pkg); Store.setDock(this, dock); reload(); }));
         }
-        items.add(new TileMenu.Item("Nascondi", () -> {
+        items.add(new TileMenu.Item(getString(R.string.hide), () -> {
             Set<String> h = Store.hidden(this); h.add(pkg); Store.setHidden(this, h);
             if (dock.remove(pkg)) Store.setDock(this, dock);
             reload();
         }));
-        items.add(new TileMenu.Item("Info app", () -> Apps.info(this, pkg)));
+        items.add(new TileMenu.Item(getString(R.string.app_info), () -> Apps.info(this, pkg)));
         menu = TileMenu.show(this, ui, pal, t, items.toArray(new TileMenu.Item[0]));
     }
 
@@ -351,7 +351,7 @@ public final class MainActivity extends Activity implements TileView.Listener, P
             t.invalidate();
         }
         dockTiles.get(index).requestFocus();
-        shelf("SPOSTA", dockTiles.get(index).label(), "Sinistra e Destra per spostarla · OK per posarla · Indietro per annullare");
+        shelf(getString(R.string.move_kind), dockTiles.get(index).label(), getString(R.string.move_hint));
     }
 
     private void moveBy(int delta) {

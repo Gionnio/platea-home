@@ -64,13 +64,14 @@ final class Ui {
         return p;
     }
 
-    /** "Domenica 1 novembre". */
-    static String today() {
-        String d = new SimpleDateFormat("EEEE d MMMM", Locale.ITALIAN).format(new Date());
-        return d.isEmpty() ? d : d.substring(0, 1).toUpperCase(Locale.ITALIAN) + d.substring(1);
+    /** "Domenica 1 novembre" / "Sunday, November 1", nella lingua della TV. */
+    static String today(Context c) {
+        Locale l = Locale.getDefault();
+        String d = new SimpleDateFormat(c.getString(R.string.date_pattern), l).format(new Date());
+        return d.isEmpty() ? d : d.substring(0, 1).toUpperCase(l) + d.substring(1);
     }
 
     static String clock() {
-        return new SimpleDateFormat("HH:mm", Locale.ITALIAN).format(new Date());
+        return new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
     }
 }

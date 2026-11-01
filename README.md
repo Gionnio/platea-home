@@ -1,68 +1,82 @@
 # Platea Home
 
-Un launcher per Android TV e Google TV in stile tvOS: minimale, senza pubblicità, **senza accesso a internet**.
-Il debloat non è nostro: è quello di [CleanYourTV](https://github.com/Gathin23/cleanyourtv), con i suoi elenchi testati
-per modello, preso sempre all'ultima versione. Platea Home fa solo da Home.
+A calm, tvOS-style home screen for Android TV and Google TV. **No ads, no sponsored rows, no internet access.**
 
-Design: il mockup "Platea Home" (Home, TV e ingressi, App, Sipario, pannelli). Font Figtree, palette Grafite.
+<p align="center"><i>English · <a href="README.it.md">Italiano</a></i></p>
 
-## Cosa c'è (versione 0.2)
+Platea Home only replaces the home screen. Debloating is done by [CleanYourTV](https://github.com/Gathin23/cleanyourtv)
+and its lists tested model by model, always fetched at their latest version. Platea Home never duplicates them.
+
+**Using an AI coding agent?** (Claude Code, Codex, Gemini CLI…) Clone this repo, open it in the agent and paste
+[`PROMPT.md`](PROMPT.md). The agent follows [`AGENTS.md`](AGENTS.md).
+
+## What you get
 - **Home**:
-  - ora e data, con tre pulsanti tondi: Ingressi, Rete, Impostazioni;
-  - top shelf testuale: categoria, nome dell'app, una riga;
-  - dock a 6 app, con il focus bianco che solleva la tessera;
-  - una riga attenuata con le altre app e "Tutte le app".
-- **OK tenuto premuto** su un'app (oppure il tasto Menu): Sposta, Togli dal dock / Aggiungi al dock, Nascondi, Info app.
-- **Sposta**: l'app si solleva; Sinistra e Destra la spostano, OK la posa, Indietro annulla.
-- **App**: tutte le app, 6 per riga. Le app del dock hanno un puntino, quelle nascoste sono attenuate.
-- **Sipario**: salvaschermo con ora, linea e data su nero, che si sposta un poco ogni minuto.
-- **Pannello rapido** (ingranaggio): Immagine, Audio, Rete, Ingressi, Impostazioni TV, Launcher, più il volume regolabile con Sinistra e Destra.
-- **Rete**: tipo di connessione, se c'è internet, indirizzo, nome e velocità del Wi-Fi; scorciatoie alle impostazioni di rete. Legge lo stato con due permessi "normali": nessun accesso a internet.
-- **Ingressi**: TV in diretta (i sintonizzatori uniti in una voce) e porte HDMI con il nome del dispositivo CEC, acceso o in standby; le porte vuote sono raccolte in "Altri ingressi".
-- **Impostazioni del launcher**: app nel dock e nascoste, palette (Grafite, Notte blu, Giorno) con anteprima, animazioni ridotte, Sipario, Home predefinita, informazioni.
-- **Peso**: APK di circa 84 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM appena avviata e circa 39 MB dopo aver aperto pannelli e impostazioni.
+  - the time and date, with three round buttons (Inputs, Network, Settings);
+  - a text top shelf showing the focused app's category, name and one line about it;
+  - a dock of 6 apps, where focus lifts the tile with a white border;
+  - one dimmed row of other apps, ending with "All apps".
+- **Hold OK** on an app (or press Menu): Move, Remove from dock / Add to dock, Hide, App info.
+- **Move**: the app lifts; Left and Right move it, OK drops it, Back cancels.
+- **Apps**: every app, 6 per row. Dock apps have a dot, hidden apps are dimmed.
+- **Quick settings** (gear), as a side panel: Picture, Sound, Network, Inputs, TV settings, Launcher, and a volume
+  bar (Left and Right).
+- **Network**: the connection type, internet yes or no, IP address, Wi-Fi name and speed, with shortcuts to the TV's
+  network settings.
+- **Inputs**: Live TV (all tuners in one entry) and the HDMI ports, with the device name read over HDMI-CEC, on or in
+  standby. Empty ports are folded under "Other inputs".
+- **Launcher settings**: the dock and hidden apps, the palette (Graphite, Night blue, Day) with a preview, reduced
+  animations, the screen saver, the default Home and an About page.
+- **Sipario**: a screen saver with the time, a line and the date on black, which moves a little every minute.
+- **Languages**: English and Italian, following the TV's language.
 
-Da fare: scelta della lingua (oggi solo italiano), prove su TV di altre marche (TCL, box Google TV).
+On a Sony BRAVIA VH1 (Android TV 12), Platea Home uses about **22 MB of RAM** right after it starts and about 39 MB
+after the panels have been opened. The APK is about **100 KB**. It needs Android 8.0 or later (API 26).
 
-## Comandi
-| Comando | Cosa fa |
+## Commands
+| Command | What it does |
 |---|---|
-| `./platea-home.sh build` | Compila `build/platea-home.apk` (`CONFIG=<json>` per la configurazione della TV) |
-| `TV_HOST=<ip> ./platea-home.sh install` | Installa e rende Home in modo sicuro (`SIPARIO=1` imposta anche il salvaschermo) |
-| `TV_HOST=<ip> ./platea-home.sh debloat <elenco>` | Debloat con `tools/disable.sh` dell'ultima CleanYourTV (es. `examples/sony-bravia-4k-vh1/debloat.txt`) |
-| `TV_HOST=<ip> ./platea-home.sh restore` | Ridà la Home e il salvaschermo di prima, riattiva i launcher di serie disattivati, rimuove Platea Home |
-| `TV_HOST=<ip> ./platea-home.sh status` | Home attuale, versione, memoria |
+| `./platea-home.sh build` | Builds `build/platea-home.apk` (`CONFIG=<json>` for the TV's configuration) |
+| `TV_HOST=<ip> ./platea-home.sh install` | Installs it and makes it Home, safely (`SIPARIO=1` also sets the screen saver) |
+| `TV_HOST=<ip> ./platea-home.sh debloat <list>` | Debloats with `tools/disable.sh` from the latest CleanYourTV, e.g. `examples/<model>/debloat.txt` |
+| `TV_HOST=<ip> ./platea-home.sh restore` | Gives back the previous Home and screen saver, enables the stock launchers it disabled, removes Platea Home |
+| `TV_HOST=<ip> ./platea-home.sh status` | Current Home, version, memory |
 
-**Installazione sicura:**
-1. Platea Home deve aprirsi davvero (`am start -W`) prima di diventare la Home.
-2. Un launcher di serie Google viene disattivato solo se la TV continua a preferirlo.
-3. Se la Home non passa a Platea Home, torna quella di prima.
+**Safe install:**
+1. Platea Home must really open (`am start -W`) before it becomes Home.
+2. A stock Google launcher is disabled only if the TV keeps preferring it.
+3. If Home does not move to Platea Home, the previous Home is put back.
 
-Lo stato per ogni TV (Home e salvaschermo di prima, launcher disattivati) è in `state/<ip>/`.
+The state for each TV (the previous Home and screen saver, the launchers disabled) is kept in `state/<ip>/`.
 
-## Configurazione
-Un file JSON messo nell'APK alla build (`config/default.json` di serie):
+## Configuration
+A JSON file is built into the APK; the default is `config/default.json`. Copy it for each TV.
 
-| Chiave | Significato |
+| Key | Meaning |
 |---|---|
-| `dock` | Le app del dock, in ordine (massimo 6; quelle non installate si saltano) |
-| `hidden` | App da non mostrare nella riga della Home (restano nella pagina App) |
-| `live_tv` | App della TV in diretta, aperta dalla voce "TV in diretta" del pannello Ingressi |
-| `palette` | `Grafite`, `Notte blu`, `Giorno` (si cambia anche dalle impostazioni sulla TV) |
-| `sipario_palette` | `Nero`, `Grafite`, `Notte blu` |
-| `lines` | `{"pacchetto": ["CATEGORIA", "riga"]}` in aggiunta a quelle di serie (`Config.java`) |
+| `dock` | Dock apps in order: at most 6, and apps that are not installed are skipped |
+| `hidden` | Apps kept out of the row on Home (they stay on the Apps page) |
+| `live_tv` | The live TV app opened by "Live TV" in the Inputs panel |
+| `palette` | `Grafite`, `Notte blu` or `Giorno` (Graphite, Night blue, Day); it can also be changed on the TV |
+| `sipario_palette` | `Nero`, `Grafite` or `Notte blu` |
+| `lines` | `{"package": ["CATEGORY", "line"]}`: top-shelf text added to the built-in lines (`res/values*/strings.xml`) |
 
-Le scelte fatte sulla TV (ordine del dock, app nascoste) restano sulla TV e vincono sul config.
+Choices made on the TV (the dock order, hidden apps, the palette) stay on the TV and win over the config.
 
 ## Build
-Senza Gradle: `aapt2`, `javac`, `d8`, `apksigner` (`build.sh`). Servono:
-- JDK 17 (`JAVA_HOME`, di serie Corretto 17);
-- Android SDK con `platforms;android-34` e `build-tools;36.0.0` (`ANDROID_HOME`, di serie quello di Homebrew).
+No Gradle: `build.sh` runs `aapt2`, `javac`, `d8` and `apksigner`. You need:
+- JDK 17 (`JAVA_HOME`);
+- the Android SDK with `platforms;android-34` and `build-tools;36.0.0` (`ANDROID_HOME`, by default Homebrew's
+  `android-commandlinetools`).
 
-La chiave di firma si crea al primo build in `keys/platea-home.keystore`. **Non è su GitHub**: va tenuta in un posto
-sicuro, perché senza la stessa chiave l'app installata non si aggiorna e andrebbe disinstallata.
+The signing key is created on the first build in `keys/platea-home.keystore`, which is git-ignored. **Back it up**:
+without the same key the installed app cannot be updated and has to be removed first.
 
-## Licenze
-- Codice di questo repo: MIT (`LICENSE`).
-- Figtree: SIL Open Font License 1.1, © The Figtree Project Authors (`app/assets/fonts/FIGTREE-OFL.txt`).
-- CleanYourTV (usato solo per il debloat, non incluso): MIT, © Gathin.
+## Not supported
+- **Fire TV**: Fire OS does not let another app become Home.
+- **Samsung, LG and Roku**: they are not Android TV.
+
+## Licences
+- This repo's code: MIT ([`LICENSE`](LICENSE)).
+- Figtree: SIL Open Font License 1.1, © The Figtree Project Authors ([`app/assets/fonts/FIGTREE-OFL.txt`](app/assets/fonts/FIGTREE-OFL.txt)).
+- CleanYourTV is used for debloating only, downloaded at run time and not included: MIT, © Gathin.

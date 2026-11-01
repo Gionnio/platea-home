@@ -36,7 +36,7 @@ final class Config {
 
     private static Config load(Context context) {
         Config c = new Config();
-        c.defaults();
+        c.defaults(context);
         try (InputStream in = context.getAssets().open("config.json")) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buf = new byte[4096];
@@ -63,35 +63,17 @@ final class Config {
         return c;
     }
 
-    private void line(String pkg, String kind, String text) { lines.put(pkg, new String[]{kind, text}); }
-
-    private void defaults() {
+    private void defaults(Context context) {
         dock.add("com.github.gionnio.platea");
         dock.add("io.gh.reisxd.tizentube.cobalt");
         dock.add("com.amazon.amazonvideo.livingroom");
         dock.add("com.apple.atve.androidtv.appletv");
         dock.add("com.netflix.ninja");
         dock.add("com.android.vending");
-        line("com.github.gionnio.platea", "MEDIA CENTER", "La tua libreria, in direct play.");
-        line("io.gh.reisxd.tizentube.cobalt", "VIDEO", "YouTube, senza pubblicità.");
-        line("com.google.android.youtube.tv", "VIDEO", "Video, musica e creator.");
-        line("com.amazon.amazonvideo.livingroom", "STREAMING", "Film e serie del tuo abbonamento.");
-        line("com.amazon.firebat", "STREAMING", "Film e serie del tuo abbonamento.");
-        line("com.netflix.ninja", "STREAMING", "Film e serie del tuo abbonamento.");
-        line("com.apple.atve.sony.appletv", "STREAMING", "Film e serie Apple.");
-        line("com.apple.atve.androidtv.appletv", "STREAMING", "Film e serie Apple.");
-        line("com.disney.disneyplus", "STREAMING", "Film e serie Disney, Pixar, Marvel.");
-        line("com.sony.dtv.tvx", "TV IN DIRETTA", "Digitale terrestre e ingressi HDMI.");
-        line("com.mediatek.wwtv.tvcenter", "TV IN DIRETTA", "Digitale terrestre e ingressi HDMI.");
-        line("it.rainet.androidtv", "TV E STREAMING", "Rai in diretta e on demand.");
-        line("it.mediaset.infinitytv", "TV E STREAMING", "Mediaset in diretta e on demand.");
-        line("com.dazn", "SPORT", "Sport in diretta.");
-        line("com.nowtv.it", "STREAMING", "Cinema, serie e sport.");
-        line("com.spotify.tv.android", "MUSICA", "Musica e podcast.");
-        line("org.videolan.vlc", "LETTORE", "File e flussi video.");
-        line("com.esaba.downloader", "STRUMENTI", "Scarica file e app.");
-        line("com.mobisystems.fileman", "STRUMENTI", "I file della TV.");
-        line("com.android.vending", "APP", "App e giochi.");
-        line("com.android.tv.settings", "SISTEMA", "Tutte le impostazioni della TV.");
+        // Categoria e riga di serie per le app note, nella lingua della TV (res/values*/strings.xml).
+        for (String item : context.getResources().getStringArray(R.array.default_lines)) {
+            String[] f = item.split("\\|", 3);
+            if (f.length == 3) lines.put(f[0], new String[]{f[1], f[2]});
+        }
     }
 }

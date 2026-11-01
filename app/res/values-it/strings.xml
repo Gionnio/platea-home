@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Italiano. Tenere allineato con values/strings.xml (inglese, di serie). -->
+<resources>
+    <string name="date_pattern">EEEE d MMMM</string>
+
+    <string name="all_apps">Tutte le app</string>
+    <string name="all_apps_kind">TUTTE LE APP</string>
+    <string name="apps_title">App</string>
+    <string name="apps_installed">%1$d app installate</string>
+    <string name="kind_app">APP</string>
+    <string name="inputs">Ingressi</string>
+    <string name="network">Rete</string>
+    <string name="settings">Impostazioni</string>
+    <string name="move">Sposta</string>
+    <string name="move_kind">SPOSTA</string>
+    <string name="move_hint">Sinistra e Destra per spostarla · OK per posarla · Indietro per annullare</string>
+    <string name="remove_from_dock">Togli dal dock</string>
+    <string name="add_to_dock">Aggiungi al dock</string>
+    <string name="hide">Nascondi</string>
+    <string name="app_info">Info app</string>
+    <string name="cannot_open">Questa app non si può aprire</string>
+    <string name="open_failed">Impossibile aprire l’app</string>
+
+    <string name="back_to_home">Indietro per tornare alla Home</string>
+    <string name="apps_count">%1$d installate · %2$d nel dock</string>
+    <string name="show_on_home">Mostra nella Home</string>
+    <string name="hide_from_home">Nascondi dalla Home</string>
+
+    <string name="settings_eyebrow">IMPOSTAZIONI DEL LAUNCHER</string>
+    <string name="sec_home">HOME</string>
+    <string name="dock_apps">App nel dock</string>
+    <string name="dock_apps_text">Le app della prima riga. Si cambiano dalla pagina App o tenendo premuto OK su un’app.</string>
+    <string name="hidden_apps">App nascoste</string>
+    <string name="hidden_apps_text">Non compaiono nella riga della Home, ma restano nella pagina App.</string>
+    <string name="palette">Palette</string>
+    <string name="palette_text">I colori della Home. Il launcher resta neutro: i colori li portano le icone delle app. OK cambia palette.</string>
+    <string name="palette_grafite">Grafite</string>
+    <string name="palette_notte">Notte blu</string>
+    <string name="palette_giorno">Giorno</string>
+    <string name="sec_motion">MOVIMENTO</string>
+    <string name="animations">Animazioni</string>
+    <string name="anim_reduced">Ridotte</string>
+    <string name="anim_normal">Normali</string>
+    <string name="anim_text">Ridotte: le tessere si sollevano senza animazione. Utile su TV lente.</string>
+    <string name="sec_screensaver">SALVASCHERMO</string>
+    <string name="sipario">Sipario</string>
+    <string name="state_on">Attivo</string>
+    <string name="state_off">Non attivo</string>
+    <string name="sipario_text">Ora e data su nero, senza immagini. OK apre le impostazioni del salvaschermo della TV.</string>
+    <string name="sec_system">SISTEMA</string>
+    <string name="default_home">Home predefinita</string>
+    <string name="another_app">un’altra app</string>
+    <string name="default_home_text">L’app che si apre col tasto Home. Per tornare alla Home della TV usa lo script di ripristino dal computer.</string>
+    <string name="about">Informazioni</string>
+    <string name="version">Versione %1$s</string>
+    <string name="about_text">Versione %1$s. Nessun accesso a internet, nessuna pubblicità, nessun dato raccolto.</string>
+
+    <string name="quick_title">Impostazioni rapide</string>
+    <string name="back_to_close">Indietro per chiudere</string>
+    <string name="no_input">Nessun ingresso collegato</string>
+    <string name="picture">Immagine</string>
+    <string name="picture_sub">Modalità e regolazioni</string>
+    <string name="sound">Audio</string>
+    <string name="sound_sub">Uscita e volume</string>
+    <string name="tv_settings">Impostazioni TV</string>
+    <string name="tv_settings_sub">Tutte le opzioni di sistema</string>
+    <string name="launcher">Launcher</string>
+    <string name="launcher_sub">Dock, palette, salvaschermo</string>
+    <string name="volume_kind">VOLUME</string>
+    <string name="volume">Volume</string>
+
+    <string name="not_connected">Non connessa</string>
+    <string name="connected_suffix">" · connessa"</string>
+    <string name="no_internet_suffix">" · senza internet"</string>
+    <string name="net_ok">Connessa a internet</string>
+    <string name="net_no_internet">Connessa, ma senza internet</string>
+    <string name="no_network">Nessuna rete</string>
+    <string name="active">ATTIVA</string>
+    <string name="no_internet_pill">SENZA INTERNET</string>
+    <string name="address">Indirizzo</string>
+    <string name="wifi_name">Rete</string>
+    <string name="name_unavailable">nome non disponibile</string>
+    <string name="speed">Velocità</string>
+    <string name="mbits">%1$d Mbit/s</string>
+    <string name="link">Collegamento</string>
+    <string name="cable">via cavo</string>
+    <string name="wifi_networks">Reti Wi-Fi</string>
+    <string name="wifi_networks_sub">Scegli o cambia rete nelle impostazioni della TV</string>
+    <string name="tv_network_settings">Impostazioni di rete della TV</string>
+
+    <string name="live_tv">TV in diretta</string>
+    <string name="antenna">Antenna</string>
+    <string name="input_generic">Ingresso</string>
+    <string name="inputs_sub">I dispositivi si riconoscono via HDMI-CEC</string>
+    <string name="input_connected">collegato</string>
+    <string name="input_standby">in standby</string>
+    <string name="input_nothing">niente collegato</string>
+    <string name="on_suffix">" · acceso"</string>
+    <string name="standby_suffix">" · in standby"</string>
+    <string name="no_inputs">Nessun ingresso</string>
+    <string name="no_inputs_sub">Questa TV non espone gli ingressi ad Android</string>
+    <string name="other_inputs">Altri ingressi (%1$d)</string>
+    <string name="other_inputs_sub">Porte senza niente collegato</string>
+
+    <string-array name="default_lines">
+        <item>com.github.gionnio.platea|MEDIA CENTER|La tua libreria, in direct play.</item>
+        <item>io.gh.reisxd.tizentube.cobalt|VIDEO|YouTube, senza pubblicità.</item>
+        <item>com.google.android.youtube.tv|VIDEO|Video, musica e creator.</item>
+        <item>com.amazon.amazonvideo.livingroom|STREAMING|Film e serie del tuo abbonamento.</item>
+        <item>com.amazon.firebat|STREAMING|Film e serie del tuo abbonamento.</item>
+        <item>com.netflix.ninja|STREAMING|Film e serie del tuo abbonamento.</item>
+        <item>com.apple.atve.sony.appletv|STREAMING|Film e serie Apple.</item>
+        <item>com.apple.atve.androidtv.appletv|STREAMING|Film e serie Apple.</item>
+        <item>com.disney.disneyplus|STREAMING|Film e serie Disney, Pixar, Marvel.</item>
+        <item>com.sony.dtv.tvx|TV IN DIRETTA|Digitale terrestre e ingressi HDMI.</item>
+        <item>com.mediatek.wwtv.tvcenter|TV IN DIRETTA|Digitale terrestre e ingressi HDMI.</item>
+        <item>it.rainet.androidtv|TV E STREAMING|Rai in diretta e on demand.</item>
+        <item>it.mediaset.infinitytv|TV E STREAMING|Mediaset in diretta e on demand.</item>
+        <item>com.dazn|SPORT|Sport in diretta.</item>
+        <item>com.nowtv.it|STREAMING|Cinema, serie e sport.</item>
+        <item>com.spotify.tv.android|MUSICA|Musica e podcast.</item>
+        <item>org.videolan.vlc|LETTORE|File e flussi video.</item>
+        <item>com.esaba.downloader|STRUMENTI|Scarica file e app.</item>
+        <item>com.mobisystems.fileman|STRUMENTI|I file della TV.</item>
+        <item>com.android.vending|APP|App e giochi.</item>
+        <item>com.android.tv.settings|SISTEMA|Tutte le impostazioni della TV.</item>
+    </string-array>
+</resources>

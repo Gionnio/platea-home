@@ -40,7 +40,7 @@ public final class SiparioDream extends DreamService {
         clock.setEllipsize(null);
         View rule = new View(this);
         rule.setBackgroundColor(pal.line);
-        date = ui.text(Ui.today(), 30, pal.sec, 400);
+        date = ui.text(Ui.today(this), 30, pal.sec, 400);
         date.setEllipsize(null);
         // In una LinearLayout verticale i figli senza parametri sono larghi quanto il genitore: qui devono adattarsi al testo.
         box.addView(clock, new LinearLayout.LayoutParams(-2, -2));
@@ -63,7 +63,7 @@ public final class SiparioDream extends DreamService {
 
     private void update(boolean drift) {
         clock.setText(Ui.clock());
-        date.setText(Ui.today());
+        date.setText(Ui.today(this));
         if (drift) {
             box.animate().translationX((random.nextFloat() - 0.5f) * ui.px(240))
                     .translationY((random.nextFloat() - 0.5f) * ui.px(160)).setDuration(4000).start();
