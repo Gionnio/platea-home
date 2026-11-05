@@ -29,19 +29,20 @@ Design: il mockup "Platea Home" (Home, TV e ingressi, App, Sipario, pannelli). F
 **A mano**, senza strumenti di build (serve solo [`adb`](https://developer.android.com/tools/releases/platform-tools)):
 1. Sulla TV attiva **Opzioni sviluppatore** (Impostazioni → Sistema → Info, premi *Build* 7 volte) e poi il **debug USB
    / di rete**. Segnati l'indirizzo IP della TV, che trovi in Impostazioni → Rete.
-2. Clona il repo e scarica `platea-home.apk` dalle [Release](../../releases):
+2. Clona il repo e scarica `platea-home.apk`: l'ultimo è sempre a
+   <https://github.com/Gionnio/platea-home/releases/latest/download/platea-home.apk>.
    ```bash
    git clone https://github.com/Gionnio/platea-home && cd platea-home
    ```
 3. Installalo e rendilo la Home. La prima volta premi **Consenti** sulla TV:
    ```bash
-   APK=platea-home.apk SIPARIO=1 TV_HOST=192.168.1.50 ./platea-home.sh install
+   APK=platea-home.apk SIPARIO=1 TV_HOST=<ip> ./platea-home.sh install
    ```
 4. Facoltativo: debloat con l'elenco CleanYourTV del tuo modello esatto. Leggi prima l'elenco e commenta le app che usi:
    ```bash
-   TV_HOST=192.168.1.50 ./platea-home.sh debloat examples/<tuo-modello>/debloat.txt
+   TV_HOST=<ip> ./platea-home.sh debloat examples/<tuo-modello>/debloat.txt
    ```
-5. Per tornare indietro: `TV_HOST=192.168.1.50 ./platea-home.sh restore`. Il debloat si annulla con il comando
+5. Per tornare indietro: `TV_HOST=<ip> ./platea-home.sh restore`. Il debloat si annulla con il comando
    `tools/restore.sh` che il passo 4 ha stampato.
 
 L'APK della release parte con un dock di serie fatto di YouTube, Netflix, Prime Video, Disney+, lo store e
@@ -53,7 +54,7 @@ cambi tenendo premuto OK su un'app, oppure compilandolo con il tuo config (vedi 
 |---|---|---|
 | Sony BRAVIA (piattaforma VH1, 2020), firmware EU | Android TV 12 | Tutto funziona, compresi i nomi dei dispositivi HDMI-CEC |
 | Fire TV Stick 4K Max (2ª gen.), Fire OS 8.1.8.5, tramite il Guard di dumbtv ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Si avvia in Platea Home; Home da un'app lo apre; circa 34 MB di RAM |
-| TCL (piattaforma C06, firmware V8-T221T05-LF1V325) | Android TV 11 | Schermata iniziale predefinita dopo il riavvio, persistenza del dock, app/ingressi/comandi rapidi/impostazioni, telecomandi fisici e Sipario funzionanti. I nomi dei dispositivi HDMI-CEC non sono stati testati in modo specifico. |
+| TCL (piattaforma C06, firmware V8-T221T05-LF1V325) ([issue #1](https://github.com/Gionnio/platea-home/issues/1)) | Android TV 11 | Schermata iniziale predefinita dopo il riavvio, persistenza del dock, app/ingressi/comandi rapidi/impostazioni, telecomandi fisici e Sipario funzionanti. I nomi dei dispositivi HDMI-CEC non sono stati testati in modo specifico. |
 
 **Lo provi su un'altra TV?** Apri una issue con modello, versione di Android e firmware, cosa va e cosa no, e gli
 screenshot. Senza indirizzi IP né nomi di rete.

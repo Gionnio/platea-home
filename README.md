@@ -29,20 +29,21 @@ and its lists tested model by model, always fetched at their latest version. Pla
 **By hand**, with no build tools (just [`adb`](https://developer.android.com/tools/releases/platform-tools)):
 1. On the TV, turn on **Developer options** (Settings → System → About, press *Build* 7 times) and then **USB / network
    debugging**. Note the TV's IP address, shown under Settings → Network.
-2. Clone this repo and download `platea-home.apk` from [Releases](../../releases):
+2. Clone this repo and download `platea-home.apk`: the latest one is always at
+   <https://github.com/Gionnio/platea-home/releases/latest/download/platea-home.apk>.
    ```bash
    git clone https://github.com/Gionnio/platea-home && cd platea-home
    ```
 3. Install it and make it Home. Press **Allow** on the TV the first time:
    ```bash
-   APK=platea-home.apk SIPARIO=1 TV_HOST=192.168.1.50 ./platea-home.sh install
+   APK=platea-home.apk SIPARIO=1 TV_HOST=<ip> ./platea-home.sh install
    ```
 4. Optional: debloat with the CleanYourTV list for your exact model. Read the list first, and comment out the apps
    you use:
    ```bash
-   TV_HOST=192.168.1.50 ./platea-home.sh debloat examples/<your-model>/debloat.txt
+   TV_HOST=<ip> ./platea-home.sh debloat examples/<your-model>/debloat.txt
    ```
-5. To undo it all: `TV_HOST=192.168.1.50 ./platea-home.sh restore`. Undo the debloat with the
+5. To undo it all: `TV_HOST=<ip> ./platea-home.sh restore`. Undo the debloat with the
    `tools/restore.sh` command that step 4 printed.
 
 The release APK starts with a default dock built from YouTube, Netflix, Prime Video, Disney+, the app store and
@@ -54,7 +55,7 @@ an app to change it, or build your own with a config (see below).
 |---|---|---|
 | Sony BRAVIA (VH1 platform, 2020), EU firmware | Android TV 12 | Everything works, including HDMI-CEC device names |
 | Fire TV Stick 4K Max (2nd gen), Fire OS 8.1.8.5, through dumbtv's Home guard ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Boots into Platea Home; Home from an app opens it; about 34 MB of RAM |
-| TCL (C06 platform, firmware V8-T221T05-LF1V325; retail model pending) | Android TV 11 | Default Home after reboot, dock persistence, Apps/Inputs/quick controls/settings, physical remote controls and Sipario passed. HDMI-CEC device names not specifically tested. |
+| TCL (C06 platform, firmware V8-T221T05-LF1V325; retail model pending) ([issue #1](https://github.com/Gionnio/platea-home/issues/1)) | Android TV 11 | Default Home after reboot, dock persistence, Apps/Inputs/quick controls/settings, physical remote controls and Sipario passed. HDMI-CEC device names not specifically tested. |
 
 **Testing it on another TV?** Please open an issue with the model, the Android version and firmware, what works and
 what doesn't, and screenshots. Do not include IP addresses or network names.
