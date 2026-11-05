@@ -65,7 +65,8 @@ use its lists and tools, never write your own debloat lists or scripts here, and
 - Ask the questions above, plus:
   - the **6 dock apps**, checking each package with `pm list packages`, because names differ by brand
     (e.g. `com.apple.atve.sony.appletv`);
-  - the palette (Grafite, Notte blu, Giorno);
+  - the palette (Grafite, Notte blu, Giorno, or automatic: `Auto Grafite` / `Auto Notte blu`, Day from sunrise to
+    sunset);
   - whether to use the Sipario screen saver.
 
 ### 3. Back up and debloat
@@ -166,7 +167,7 @@ Fire OS keeps Amazon's Home whatever you set: `set-home-activity` answers `Succe
     install script grants them over ADB, and the app never reads the location.
 - **No libraries and no Gradle:** plain Java and Android views, built by `build.sh`, with `minSdk` 26.
 - **Light:**
-  - the APK stays under 256 KB (about 100 KB today);
+  - the APK stays under 256 KB (about 115 KB today);
   - Home stays under 40 MB of RAM about a minute after start on a real TV (about 22 MB on a Sony BRAVIA VH1);
   - load app banners lazily, only for the tiles on screen.
 - **Layout follows the mockup:** sizes are in pixels of a 1920×1080 TV, scaled with `Ui.px()`. The design is neutral:

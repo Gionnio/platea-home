@@ -53,7 +53,7 @@ cambi tenendo premuto OK su un'app, oppure compilandolo con il tuo config (vedi 
 | TV | Android | Esito |
 |---|---|---|
 | Sony BRAVIA (piattaforma VH1, 2020), firmware EU | Android TV 12 | Tutto funziona, compresi i nomi dei dispositivi HDMI-CEC |
-| Fire TV Stick 4K Max (2ª gen.), Fire OS 8.1.8.5, tramite il Guard di dumbtv ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Si avvia in Platea Home; Home da un'app lo apre; circa 34 MB di RAM |
+| Fire TV Stick 4K Max (2ª gen.), Fire OS 8.1.8.5, tramite il Guard di dumbtv ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Si avvia in Platea Home; Home da un'app lo apre; circa 45 MB di RAM |
 | TCL (piattaforma C06, firmware V8-T221T05-LF1V325) ([issue #1](https://github.com/Gionnio/platea-home/issues/1)) | Android TV 11 | Schermata iniziale predefinita dopo il riavvio, persistenza del dock, app/ingressi/comandi rapidi/impostazioni, telecomandi fisici e Sipario funzionanti. I nomi dei dispositivi HDMI-CEC non sono stati testati in modo specifico. |
 
 **Lo provi su un'altra TV?** Apri una issue con modello, versione di Android e firmware, cosa va e cosa no, e gli
@@ -65,19 +65,22 @@ screenshot. Senza indirizzi IP né nomi di rete.
   - top shelf testuale: categoria, nome dell'app, una riga;
   - dock a 6 app, con il focus bianco che solleva la tessera;
   - una riga attenuata con le altre app e "Tutte le app".
-- **OK tenuto premuto** su un'app (oppure il tasto Menu): Sposta, Togli dal dock, Aggiungi al dock, Nascondi, Info app.
+- **OK tenuto premuto** su un'app (oppure il tasto Menu): Sposta, Togli dal dock, Aggiungi al dock, Nascondi, Sposta in una cartella, Info app.
   **Aggiungi al dock** porta alla Home con l'app pronta da spostare, così scegli il posto. Con il dock pieno diventa
   **Sostituisci nel dock**: Sinistra e Destra scelgono quale app sostituire.
 - **Sposta**: l'app si solleva; Sinistra e Destra la spostano, OK la posa, Indietro annulla.
 - **App**: tutte le app, 6 per riga, e dalla fine di una riga si passa alla successiva. Le app del dock hanno un
   puntino, quelle nascoste sono attenuate.
+- **Cartelle**: nella Home e nella pagina App, mai nel dock. Una cartella mostra le prime quattro app; OK la apre,
+  Indietro la chiude. I nomi si scelgono da una lista (Streaming, Sport, TV, Musica, Giochi, Bambini, Utilità, Altro),
+  così non si scrive col telecomando. OK tenuto premuto su una cartella la rinomina o la elimina (le app restano).
 - **Sipario**: salvaschermo con ora, linea e data su nero, che si sposta un poco ogni minuto.
 - **Pannello rapido** (ingranaggio): Immagine, Audio, Rete, Ingressi, Impostazioni TV, Launcher, più il volume regolabile con Sinistra e Destra.
 - **Rete**: tipo di connessione, se c'è internet, indirizzo, nome e velocità del Wi-Fi; scorciatoie alle impostazioni di rete. Legge lo stato con due permessi "normali": nessun accesso a internet.
 - **Ingressi**: TV in diretta (i sintonizzatori uniti in una voce) e porte HDMI con il nome del dispositivo CEC, acceso o in standby; le porte vuote sono raccolte in "Altri ingressi".
-- **Impostazioni del launcher**: app nel dock e nascoste, palette (Grafite, Notte blu, Giorno) con anteprima, animazioni ridotte, Sipario, Home predefinita, informazioni.
+- **Impostazioni del launcher**: app nel dock e nascoste, cartelle sì o no, palette (Grafite, Notte blu, Giorno, oppure **automatica**: Giorno dall'alba al tramonto, poi Grafite o Notte blu) con anteprima, animazioni ridotte, Sipario, Home predefinita, informazioni.
 - **Lingue**: inglese e italiano, secondo la lingua della TV.
-- **Peso**: APK di circa 100 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM appena avviata e circa 39 MB dopo aver aperto pannelli e impostazioni.
+- **Peso**: APK di circa 115 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM appena avviata e circa 39 MB dopo aver aperto pannelli e impostazioni. Alba e tramonto per la palette automatica si calcolano sulla TV dal fuso orario, senza posizione e senza rete.
 
 Da fare: prove su altre marche e su un box Google TV.
 
@@ -111,7 +114,7 @@ Un file JSON messo nell'APK alla build (`config/default.json` di serie):
 | `dock` | Le app del dock, in ordine (massimo 6; quelle non installate si saltano) |
 | `hidden` | App da non mostrare nella riga della Home (restano nella pagina App) |
 | `live_tv` | App della TV in diretta, aperta dalla voce "TV in diretta" del pannello Ingressi |
-| `palette` | `Grafite`, `Notte blu`, `Giorno` (si cambia anche dalle impostazioni sulla TV) |
+| `palette` | `Grafite`, `Notte blu`, `Giorno`, oppure `Auto Grafite` / `Auto Notte blu`: Giorno di giorno e quella palette di notte (si cambia anche dalle impostazioni sulla TV) |
 | `sipario_palette` | `Nero`, `Grafite`, `Notte blu` |
 | `lines` | `{"pacchetto": ["CATEGORIA", "riga"]}` in aggiunta a quelle di serie (`Config.java`) |
 

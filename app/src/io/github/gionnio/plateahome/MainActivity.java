@@ -17,7 +17,9 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -54,9 +56,19 @@ public final class MainActivity extends Activity implements TileView.Listener, P
     private View sheet;
     private View beforeSheet;
     private String paletteName;
+    private Map<String, List<String>> folders = new LinkedHashMap<>();
+    /** La cartella aperta sopra la Home, le sue tessere e la tessera da cui la si è aperta. */
+    private FrameLayout folderPanel;
+    private String openKey;
+    private final List<TileView> folderTiles = new ArrayList<>();
+    private View beforeFolder;
 
     private final BroadcastReceiver tick = new BroadcastReceiver() {
-        @Override public void onReceive(Context c, Intent i) { updateClock(); }
+        @Override public void onReceive(Context c, Intent i) {
+            updateClock();
+            // Palette automatica: cambia all'alba e al tramonto, ma solo se nessuno sta usando la Home da un minuto.
+            if (!Store.effective(MainActivity.this).equals(paletteName) && idle()) recreate();
+        }
     };
     private final BroadcastReceiver packages = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) { reload(); }
@@ -65,7 +77,7 @@ public final class MainActivity extends Activity implements TileView.Listener, P
     @Override protected void onCreate(Bundle b) {
         super.onCreate(b);
         ui = new Ui(this);
-        paletteName = Store.palette(this);
+        paletteName = Store.effective(this);
         pal = Palette.of(paletteName);
         build();
     }
@@ -203,7 +215,7 @@ public final class MainActivity extends Activity implements TileView.Listener, P
             registerReceiver(packages, f);
             receiversOn = true;
         }
-        if (!Store.palette(this).equals(paletteName)) { recreate(); return; }
+        if (!Store.effective(this).equals(paletteName)) { recreate(); return; }
         updateClock();
         if (sheet == null) reload();
         if (pendingPlace != null) { String p = pendingPlace; pendingPlace = null; startPlace(p); }
@@ -225,6 +237,7 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         super.onNewIntent(intent);
         if (menu != null) menu.dismiss();
         close();
+        closeFolder();
         if (moving >= 0) endMove(false);
         if (placing != null) endPlace(false);
         pendingPlace = intent.getStringExtra(EXTRA_PLACE);
@@ -241,6 +254,7 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         View f = getCurrentFocus();
         int focusDock = dockTiles.indexOf(f), focusRow = rowTiles.indexOf(f);
         apps = Apps.load(this);
+        folders = Folders.load(this);
         Set<String> hidden = Store.hidden(this);
         dock.clear();
         for (String p : Store.dock(this)) if (Apps.find(apps, p) != null && dock.size() < DOCK) dock.add(p);
@@ -255,14 +269,20 @@ public final class MainActivity extends Activity implements TileView.Listener, P
         if (target instanceof TileView) onTileFocus((TileView) target, true);
     }
 
-    /** La riga sotto il dock: le prime app né nel dock né nascoste, poi "Tutte le app". */
+    /** La riga sotto il dock: prima le cartelle, poi le app né nel dock, né nascoste, né in una cartella; poi "Tutte le app". */
     private void bindRow(Set<String> hidden) {
-        List<Apps.App> rest = new ArrayList<>();
-        for (Apps.App a : apps) if (!dock.contains(a.pkg) && !hidden.contains(a.pkg)) rest.add(a);
+        List<Object> rest = new ArrayList<>();
+        for (Map.Entry<String, List<String>> f : folders.entrySet())
+            if (!Folders.apps(apps, f.getValue()).isEmpty()) rest.add(f.getKey());
+        for (Apps.App a : apps)
+            if (!dock.contains(a.pkg) && !hidden.contains(a.pkg) && Folders.of(folders, a.pkg) == null) rest.add(a);
         for (int i = 0; i < ROW; i++) {
             TileView t = rowTiles.get(i);
-            if (i < rest.size()) { t.bind(rest.get(i), false); t.setVisibility(View.VISIBLE); }
-            else t.setVisibility(View.GONE);
+            if (i >= rest.size()) { t.setVisibility(View.GONE); continue; }
+            Object o = rest.get(i);
+            if (o instanceof String) t.bindFolder((String) o, Folders.apps(apps, folders.get(o)));
+            else t.bind((Apps.App) o, false);
+            t.setVisibility(View.VISIBLE);
         }
         rowTiles.get(ROW).bind(null, true);
     }
@@ -285,9 +305,22 @@ public final class MainActivity extends Activity implements TileView.Listener, P
             shelf(getString(R.string.all_apps_kind), getString(R.string.apps_title), getString(R.string.apps_installed, apps.size()));
             return;
         }
+        if (t.folder != null) {
+            shelf(getString(R.string.folder_kind), t.label(), summary(t.folderApps));
+            return;
+        }
         if (t.app == null) return;
         String[] l = Config.get(this).lines.get(t.app.pkg);
         shelf(l == null ? getString(R.string.kind_app) : l[0], t.app.label, l == null ? "" : l[1]);
+    }
+
+    /** "5 app: DAZN, Infinity, Sky Go e altre 2" */
+    private String summary(List<Apps.App> in) {
+        if (in == null || in.isEmpty()) return "";
+        StringBuilder b = new StringBuilder();
+        for (int i = 0; i < Math.min(3, in.size()); i++) { if (i > 0) b.append(", "); b.append(in.get(i).label); }
+        return in.size() > 3 ? getString(R.string.folder_summary_more, in.size(), b.toString(), in.size() - 3)
+                : getString(R.string.folder_summary, in.size(), b.toString());
     }
 
     private void shelf(String kind, String title, String text) {
@@ -298,7 +331,16 @@ public final class MainActivity extends Activity implements TileView.Listener, P
 
     // ---- tasti: OK apre, OK tenuto apre il menu, Sposta ------------------------------------
 
+    /** Ultimo tasto premuto: la palette automatica non cambia mentre qualcuno usa la Home. */
+    private long lastKey;
+
+    private boolean idle() {
+        return sheet == null && folderPanel == null && (menu == null || !menu.isShowing()) && moving < 0 && placing == null
+                && android.os.SystemClock.uptimeMillis() - lastKey > 60_000;
+    }
+
     @Override public boolean dispatchKeyEvent(KeyEvent e) {
+        lastKey = android.os.SystemClock.uptimeMillis();
         int code = e.getKeyCode();
         boolean ok = code == KeyEvent.KEYCODE_DPAD_CENTER || code == KeyEvent.KEYCODE_ENTER
                 || code == KeyEvent.KEYCODE_NUMPAD_ENTER || code == KeyEvent.KEYCODE_BUTTON_A;
@@ -309,6 +351,10 @@ public final class MainActivity extends Activity implements TileView.Listener, P
                 return true;
             }
             return super.dispatchKeyEvent(e);
+        }
+        if (folderPanel != null && code == KeyEvent.KEYCODE_BACK) {
+            if (e.getAction() == KeyEvent.ACTION_UP) closeFolder();
+            return true;
         }
 
         if (placing != null) {
@@ -359,13 +405,16 @@ public final class MainActivity extends Activity implements TileView.Listener, P
     }
 
     private void openTile(TileView t) {
-        if (t.allApps) startActivity(new Intent(this, AppsActivity.class));
+        if (t.folder != null) openFolder(t.folder);
+        else if (t.allApps) startActivity(new Intent(this, AppsActivity.class));
         else if (t.app != null) Apps.open(this, t.app.pkg);
     }
 
     private void showMenu(TileView t) {
+        if (t.folder != null) { folderMenu(t); return; }
         if (t.allApps || t.app == null) return;
         final String pkg = t.app.pkg;
+        if (folderTiles.contains(t)) { inFolderMenu(t); return; }
         int index = dockTiles.indexOf(t);
         List<TileMenu.Item> items = new ArrayList<>();
         if (index >= 0) {
@@ -378,6 +427,72 @@ public final class MainActivity extends Activity implements TileView.Listener, P
             Set<String> h = Store.hidden(this); h.add(pkg); Store.setHidden(this, h);
             if (dock.remove(pkg)) Store.setDock(this, dock);
             reload();
+        }));
+        if (Folders.on(this))
+            items.add(new TileMenu.Item(getString(R.string.move_to_folder), () ->
+                    menu = TileMenu.show(this, ui, pal, t, Folders.chooser(this, pkg, null, this::reload))));
+        items.add(new TileMenu.Item(getString(R.string.app_info), () -> Apps.info(this, pkg)));
+        menu = TileMenu.show(this, ui, pal, t, items.toArray(new TileMenu.Item[0]));
+    }
+
+    // ---- cartelle ----------------------------------------------------------------------------
+
+    private void openFolder(String key) {
+        List<String> pk = folders.get(key);
+        List<Apps.App> in = pk == null ? new ArrayList<>() : Folders.apps(apps, pk);
+        if (in.isEmpty()) return;
+        if (folderPanel != null) screen.removeView(folderPanel);
+        else beforeFolder = getCurrentFocus();
+        folderTiles.clear();
+        openKey = key;
+        folderPanel = Folders.panel(this, ui, pal, key, in, folderTiles);
+        screen.addView(folderPanel, new FrameLayout.LayoutParams(-1, -1));
+        home.setAlpha(0.15f);
+        home.setDescendantFocusability(android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+    }
+
+    private void closeFolder() {
+        if (folderPanel == null) return;
+        Folders.close(screen, folderPanel, null, home);
+        folderPanel = null;
+        openKey = null;
+        folderTiles.clear();
+        reload();
+        // Torna sulla tessera della cartella, se c'è ancora; altrimenti reload() ha già messo il focus.
+        if (beforeFolder instanceof TileView && beforeFolder.getVisibility() == View.VISIBLE) beforeFolder.requestFocus();
+        beforeFolder = null;
+    }
+
+    /** Dopo una modifica dentro la cartella: la riapre aggiornata, o la chiude se è rimasta vuota. */
+    private void refreshFolder() {
+        String key = openKey;
+        reload();
+        if (key != null && folders.containsKey(key) && !Folders.apps(apps, folders.get(key)).isEmpty()) {
+            View back = beforeFolder;
+            openFolder(key);
+            beforeFolder = back;
+        } else closeFolder();
+    }
+
+    private void folderMenu(TileView t) {
+        final String key = t.folder;
+        List<TileMenu.Item> items = new ArrayList<>();
+        items.add(new TileMenu.Item(getString(R.string.folder_rename), () ->
+                menu = TileMenu.show(this, ui, pal, t, Folders.renamer(this, key, this::reload))));
+        items.add(new TileMenu.Item(getString(R.string.folder_delete), () -> { Folders.delete(this, key); reload(); }));
+        menu = TileMenu.show(this, ui, pal, t, items.toArray(new TileMenu.Item[0]));
+    }
+
+    private void inFolderMenu(TileView t) {
+        final String pkg = t.app.pkg;
+        List<TileMenu.Item> items = new ArrayList<>();
+        items.add(new TileMenu.Item(getString(R.string.folder_take_out), () -> { Folders.remove(this, pkg); refreshFolder(); }));
+        items.add(new TileMenu.Item(getString(R.string.move_to_other_folder), () ->
+                menu = TileMenu.show(this, ui, pal, t, Folders.chooser(this, pkg, openKey, this::refreshFolder))));
+        items.add(new TileMenu.Item(getString(dock.size() < DOCK ? R.string.add_to_dock : R.string.replace_in_dock), () -> {
+            beforeFolder = null;
+            closeFolder();
+            startPlace(pkg);
         }));
         items.add(new TileMenu.Item(getString(R.string.app_info), () -> Apps.info(this, pkg)));
         menu = TileMenu.show(this, ui, pal, t, items.toArray(new TileMenu.Item[0]));
@@ -414,7 +529,7 @@ public final class MainActivity extends Activity implements TileView.Listener, P
     private void endMove(boolean keep) {
         int at = moving;
         moving = -1;
-        if (keep) { Store.setDock(this, dock); unhide(adding); }
+        if (keep) { Store.setDock(this, dock); unhide(adding); if (adding != null) Folders.remove(this, adding); }
         else { dock.clear(); dock.addAll(movingBackup); }
         adding = null;
         for (TileView t : dockTiles) { t.moving = false; t.setAlpha(1f); t.lift(1f, 0, 0); t.invalidate(); }
@@ -461,7 +576,7 @@ public final class MainActivity extends Activity implements TileView.Listener, P
 
     private void endPlace(boolean keep) {
         int at = placeSlot;
-        if (keep) { dock.set(placeSlot, placing); Store.setDock(this, dock); unhide(placing); }
+        if (keep) { dock.set(placeSlot, placing); Store.setDock(this, dock); unhide(placing); Folders.remove(this, placing); }
         placing = null;
         placeSlot = -1;
         for (TileView t : dockTiles) { t.moving = false; t.setAlpha(1f); t.lift(1f, 0, 0); t.invalidate(); }

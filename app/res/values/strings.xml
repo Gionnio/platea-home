@@ -43,6 +43,8 @@
     <string name="palette_grafite">Graphite</string>
     <string name="palette_notte">Night blue</string>
     <string name="palette_giorno">Day</string>
+    <string name="palette_auto">Automatic · Day / %1$s</string>
+    <string name="palette_auto_text">Day from sunrise to sunset, then %1$s. Today: Day from %2$s, %1$s from %3$s. The times are worked out on the TV from its time zone, with no location and no network.</string>
     <string name="sec_motion">MOTION</string>
     <string name="animations">Animations</string>
     <string name="anim_reduced">Reduced</string>
@@ -140,4 +142,27 @@
         <item>com.apple.atve.amazon.appletv|STREAMING|Apple films and series.</item>
         <item>com.amazon.venezia|APPS|Apps and games.</item>
     </string-array>
+    <string name="apps_count_folders">%1$d installed · %2$d in the dock · %3$d folders</string>
+    <string name="apps_count_folder">%1$d installed · %2$d in the dock · 1 folder</string>
+    <string name="folder_kind">Folder</string>
+    <string name="folder_streaming">Streaming</string>
+    <string name="folder_sport">Sport</string>
+    <string name="folder_tv">TV</string>
+    <string name="folder_music">Music</string>
+    <string name="folder_games">Games</string>
+    <string name="folder_kids">Kids</string>
+    <string name="folder_tools">Tools</string>
+    <string name="folder_other">Other</string>
+    <string name="folder_new">New folder: %1$s</string>
+    <string name="folder_with">%1$s · %2$d apps</string>
+    <string name="folder_summary">%1$d apps: %2$s</string>
+    <string name="folder_summary_more">%1$d apps: %2$s and %3$d more</string>
+    <string name="folder_hint">Back closes · Hold OK to take an app out or move it</string>
+    <string name="folder_rename">Rename</string>
+    <string name="folder_delete">Delete folder (the apps stay)</string>
+    <string name="folder_take_out">Take out of the folder</string>
+    <string name="move_to_folder">Move to a folder</string>
+    <string name="move_to_other_folder">Move to another folder</string>
+    <string name="folders">Folders</string>
+    <string name="folders_text">Group apps in folders on Home and on the Apps page: hold OK on an app and choose Move to a folder. Off, the folders are kept but their apps show one by one.</string>
 </resources>

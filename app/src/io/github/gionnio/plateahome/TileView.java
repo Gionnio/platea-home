@@ -20,6 +20,9 @@ final class TileView extends View {
     boolean allApps;
     /** In modalità Sposta: sollevata, inclinata, con le frecce ai lati. */
     boolean moving;
+    /** Tessera cartella: la chiave (Folders.KEYS) e le sue app, le prime 4 disegnate in piccolo. */
+    String folder;
+    java.util.List<Apps.App> folderApps;
 
     private final Ui ui;
     private final Palette pal;
@@ -49,11 +52,23 @@ final class TileView extends View {
     void bind(Apps.App app, boolean allApps) {
         this.app = app;
         this.allApps = allApps;
+        this.folder = null;
+        this.folderApps = null;
         setContentDescription(allApps ? getContext().getString(R.string.all_apps) : app == null ? "" : app.label);
         invalidate();
     }
 
-    String label() { return allApps ? getContext().getString(R.string.all_apps) : app == null ? "" : app.label; }
+    void bindFolder(String key, java.util.List<Apps.App> apps) {
+        this.app = null;
+        this.allApps = false;
+        this.folder = key;
+        this.folderApps = apps;
+        setContentDescription(Folders.label(getContext(), key));
+        invalidate();
+    }
+
+    String label() { if (folder != null) return Folders.label(getContext(), folder);
+        return allApps ? getContext().getString(R.string.all_apps) : app == null ? "" : app.label; }
 
     @Override protected void onSizeChanged(int w, int h, int ow, int oh) {
         clip.reset();
@@ -66,7 +81,9 @@ final class TileView extends View {
         c.save();
         c.clipPath(clip);
         Drawable banner = app == null ? null : app.banner();
-        if (banner != null) {
+        if (folder != null) {
+            drawFolder(c, w, h);
+        } else if (banner != null) {
             bounds.set(0, 0, w, h);
             banner.setBounds(bounds);
             banner.draw(c);
@@ -95,6 +112,48 @@ final class TileView extends View {
         c.drawRoundRect(box, radius, radius, paint);
 
         if (moving) drawArrows(c, w, h);
+    }
+
+    private final RectF mini = new RectF();
+    private final Path miniClip = new Path();
+
+    /** Fondo neutro con le prime 4 app in una griglia 2x2 di mini tessere. */
+    private void drawFolder(Canvas c, int w, int h) {
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(pal.tile);
+        c.drawRect(0, 0, w, h, paint);
+        float pad = ui.px(12), gap = ui.px(8), mw = (w - pad * 2 - gap) / 2f, mh = (h - pad * 2 - gap) / 2f, r = ui.px(7);
+        int n = folderApps == null ? 0 : Math.min(4, folderApps.size());
+        for (int i = 0; i < 4; i++) {
+            float x = pad + (i % 2) * (mw + gap), y = pad + (i / 2) * (mh + gap);
+            mini.set(x, y, x + mw, y + mh);
+            if (i >= n) {
+                paint.setColor(pal.line);
+                c.drawRoundRect(mini, r, r, paint);
+                continue;
+            }
+            Apps.App a = folderApps.get(i);
+            c.save();
+            miniClip.reset();
+            miniClip.addRoundRect(mini, r, r, Path.Direction.CW);
+            c.clipPath(miniClip);
+            Drawable b = a.banner();
+            if (b != null) {
+                b.setBounds(Math.round(x), Math.round(y), Math.round(x + mw), Math.round(y + mh));
+                b.draw(c);
+            } else {
+                paint.setColor(pal.surface);
+                c.drawRect(mini, paint);
+                Drawable ic = a.icon();
+                if (ic != null) {
+                    int s = Math.round(mh * 0.7f);
+                    int cx = Math.round(x + mw / 2), cy = Math.round(y + mh / 2);
+                    ic.setBounds(cx - s / 2, cy - s / 2, cx + s / 2, cy + s / 2);
+                    ic.draw(c);
+                }
+            }
+            c.restore();
+        }
     }
 
     private void drawLabel(Canvas c, String text, int w, int baseline) {

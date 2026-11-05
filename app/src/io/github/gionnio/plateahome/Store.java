@@ -46,7 +46,19 @@ final class Store {
 
     static void setPalette(Context c, String name) { prefs(c).edit().putString("palette", name).apply(); }
 
-    static Palette pal(Context c) { return Palette.of(palette(c)); }
+    /** "Auto Grafite" o "Auto Notte blu": Giorno dall'alba al tramonto, poi la palette di notte. */
+    static boolean isAuto(String name) { return name.startsWith("Auto "); }
+
+    static String night(String name) { return isAuto(name) ? name.substring(5) : name; }
+
+    /** La palette da usare adesso: per quelle automatiche dipende dall'ora (Daylight). */
+    static String effective(Context c) {
+        String p = palette(c);
+        if (!isAuto(p)) return p;
+        return Daylight.isDay(System.currentTimeMillis()) ? "Giorno" : night(p);
+    }
+
+    static Palette pal(Context c) { return Palette.of(effective(c)); }
 
     /** Animazioni ridotte: niente sollevamento animato delle tessere. */
     static boolean reducedMotion(Context c) { return prefs(c).getBoolean("reduced_motion", false); }

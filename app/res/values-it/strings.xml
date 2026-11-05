@@ -40,6 +40,8 @@
     <string name="palette_grafite">Grafite</string>
     <string name="palette_notte">Notte blu</string>
     <string name="palette_giorno">Giorno</string>
+    <string name="palette_auto">Automatica · Giorno / %1$s</string>
+    <string name="palette_auto_text">Giorno dall’alba al tramonto, poi %1$s. Oggi: Giorno dalle %2$s, %1$s dalle %3$s. Gli orari si calcolano sulla TV dal fuso orario, senza posizione e senza rete.</string>
     <string name="sec_motion">MOVIMENTO</string>
     <string name="animations">Animazioni</string>
     <string name="anim_reduced">Ridotte</string>
@@ -131,4 +133,27 @@
         <item>com.apple.atve.amazon.appletv|STREAMING|Film e serie Apple.</item>
         <item>com.amazon.venezia|APP|App e giochi.</item>
     </string-array>
+    <string name="apps_count_folders">%1$d installate · %2$d nel dock · %3$d cartelle</string>
+    <string name="apps_count_folder">%1$d installate · %2$d nel dock · 1 cartella</string>
+    <string name="folder_kind">Cartella</string>
+    <string name="folder_streaming">Streaming</string>
+    <string name="folder_sport">Sport</string>
+    <string name="folder_tv">TV</string>
+    <string name="folder_music">Musica</string>
+    <string name="folder_games">Giochi</string>
+    <string name="folder_kids">Bambini</string>
+    <string name="folder_tools">Utilità</string>
+    <string name="folder_other">Altro</string>
+    <string name="folder_new">Nuova cartella: %1$s</string>
+    <string name="folder_with">%1$s · %2$d app</string>
+    <string name="folder_summary">%1$d app: %2$s</string>
+    <string name="folder_summary_more">%1$d app: %2$s e altre %3$d</string>
+    <string name="folder_hint">Indietro chiude · Tieni premuto OK per togliere o spostare un’app</string>
+    <string name="folder_rename">Rinomina</string>
+    <string name="folder_delete">Elimina cartella (le app restano)</string>
+    <string name="folder_take_out">Togli dalla cartella</string>
+    <string name="move_to_folder">Sposta in una cartella</string>
+    <string name="move_to_other_folder">Sposta in un’altra cartella</string>
+    <string name="folders">Cartelle</string>
+    <string name="folders_text">Raggruppa le app in cartelle nella Home e nella pagina App: tieni premuto OK su un’app e scegli Sposta in una cartella. Spente, le cartelle restano salvate ma le app si vedono una per una.</string>
 </resources>

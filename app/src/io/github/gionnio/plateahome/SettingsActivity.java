@@ -21,11 +21,13 @@ import java.util.List;
 /** Impostazioni del launcher, stile tvOS: a sinistra la voce selezionata in grande, a destra l'elenco. */
 public final class SettingsActivity extends Activity {
     private static final String[] PALETTES = {"Grafite", "Notte blu", "Giorno"};
+    /** Le scelte che OK fa scorrere: le tre palette, poi le due automatiche. */
+    private static final String[] CHOICES = {"Grafite", "Notte blu", "Giorno", "Auto Grafite", "Auto Notte blu"};
     private Ui ui;
     private Palette pal;
     private TextView bigTitle, bigText;
     private LinearLayout swatches, list;
-    private String paletteName;
+    private String paletteName, choice;
     /** La voce col focus prima di ricreare la pagina (cambio palette): ci si torna, così OK scorre le palette di fila. */
     private int restoreFocus = -1;
 
@@ -33,7 +35,8 @@ public final class SettingsActivity extends Activity {
         super.onCreate(b);
         if (b != null) restoreFocus = b.getInt("focus", -1);
         ui = new Ui(this);
-        paletteName = Store.palette(this);
+        choice = Store.palette(this);
+        paletteName = Store.effective(this);
         pal = Palette.of(paletteName);
 
         FrameLayout root = new FrameLayout(this);
@@ -108,11 +111,21 @@ public final class SettingsActivity extends Activity {
                 () -> startActivity(new Intent(this, AppsActivity.class)));
         row(getString(R.string.hidden_apps), String.valueOf(hidden), getString(R.string.hidden_apps), getString(R.string.hidden_apps_text), false,
                 () -> startActivity(new Intent(this, AppsActivity.class)));
-        row(getString(R.string.palette), paletteLabel(paletteName), getString(R.string.palette), getString(R.string.palette_text), true, () -> {
+        String palText = getString(R.string.palette_text);
+        if (Store.isAuto(choice)) {
+            int[] sun = Daylight.today(System.currentTimeMillis());
+            palText = getString(R.string.palette_auto_text, paletteLabel(Store.night(choice)), Daylight.hhmm(sun[0]), Daylight.hhmm(sun[1]));
+        }
+        row(getString(R.string.palette), choiceLabel(choice), getString(R.string.palette), palText, true, () -> {
             int i = 0;
-            while (i < PALETTES.length && !PALETTES[i].equals(paletteName)) i++;
-            Store.setPalette(this, PALETTES[(i + 1) % PALETTES.length]);
+            while (i < CHOICES.length && !CHOICES[i].equals(choice)) i++;
+            Store.setPalette(this, CHOICES[(i + 1) % CHOICES.length]);
             recreate();
+        });
+        boolean foldersOn = Folders.on(this);
+        row(getString(R.string.folders), foldersOn ? getString(R.string.state_on) : getString(R.string.state_off), getString(R.string.folders), getString(R.string.folders_text), false, () -> {
+            Folders.setOn(this, !Folders.on(this));
+            fill();
         });
         header(getString(R.string.sec_motion));
         boolean reduced = Store.reducedMotion(this);
@@ -139,6 +152,11 @@ public final class SettingsActivity extends Activity {
         if ("Notte blu".equals(key)) return getString(R.string.palette_notte);
         if ("Giorno".equals(key)) return getString(R.string.palette_giorno);
         return getString(R.string.palette_grafite);
+    }
+
+    private String choiceLabel(String key) {
+        if (!Store.isAuto(key)) return paletteLabel(key);
+        return getString(R.string.palette_auto, paletteLabel(Store.night(key)));
     }
 
     private void header(String label) {

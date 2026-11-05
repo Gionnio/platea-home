@@ -54,7 +54,7 @@ an app to change it, or build your own with a config (see below).
 | TV | Android | Result |
 |---|---|---|
 | Sony BRAVIA (VH1 platform, 2020), EU firmware | Android TV 12 | Everything works, including HDMI-CEC device names |
-| Fire TV Stick 4K Max (2nd gen), Fire OS 8.1.8.5, through dumbtv's Home guard ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Boots into Platea Home; Home from an app opens it; about 34 MB of RAM |
+| Fire TV Stick 4K Max (2nd gen), Fire OS 8.1.8.5, through dumbtv's Home guard ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Boots into Platea Home; Home from an app opens it; about 45 MB of RAM |
 | TCL (C06 platform, firmware V8-T221T05-LF1V325; retail model pending) ([issue #1](https://github.com/Gionnio/platea-home/issues/1)) | Android TV 11 | Default Home after reboot, dock persistence, Apps/Inputs/quick controls/settings, physical remote controls and Sipario passed. HDMI-CEC device names not specifically tested. |
 
 **Testing it on another TV?** Please open an issue with the model, the Android version and firmware, what works and
@@ -66,12 +66,15 @@ what doesn't, and screenshots. Do not include IP addresses or network names.
   - a text top shelf showing the focused app's category, name and one line about it;
   - a dock of 6 apps, where focus lifts the tile with a white border;
   - one dimmed row of other apps, ending with "All apps".
-- **Hold OK** on an app (or press Menu): Move, Remove from dock, Add to dock, Hide, App info. **Add to dock** takes
+- **Hold OK** on an app (or press Menu): Move, Remove from dock, Add to dock, Hide, Move to a folder, App info. **Add to dock** takes
   you to Home with the app ready to move, so you pick its place. With a full dock it becomes **Replace in dock**:
   Left and Right choose which app to replace.
 - **Move**: the app lifts; Left and Right move it, OK drops it, Back cancels.
 - **Apps**: every app, 6 per row, wrapping from the end of a row to the next. Dock apps have a dot, hidden apps
   are dimmed.
+- **Folders**: on Home and on the Apps page, never in the dock. A folder shows its first four apps; OK opens it, Back
+  closes it. Names come from a short list (Streaming, Sport, TV, Music, Games, Kids, Tools, Other), so there is no
+  typing with the remote. Hold OK on a folder to rename it or delete it (its apps stay).
 - **Quick settings** (gear), as a side panel: Picture, Sound, Network, Inputs, TV settings, Launcher, and a volume
   bar (Left and Right).
 - **Network**: the connection type, internet yes or no, IP address, Wi-Fi name and speed, with shortcuts to the TV's
@@ -79,13 +82,14 @@ what doesn't, and screenshots. Do not include IP addresses or network names.
   it, and the app never reads the location (it has no internet access anyway).
 - **Inputs**: Live TV (all tuners in one entry) and the HDMI ports, with the device name read over HDMI-CEC, on or in
   standby. Empty ports are folded under "Other inputs".
-- **Launcher settings**: the dock and hidden apps, the palette (Graphite, Night blue, Day) with a preview, reduced
+- **Launcher settings**: the dock and hidden apps, folders on or off, the palette (Graphite, Night blue, Day, or **automatic**: Day from sunrise to sunset, then Graphite or Night blue) with a preview, reduced
   animations, the screen saver, the default Home and an About page.
 - **Sipario**: a screen saver with the time, a line and the date on black, which moves a little every minute.
 - **Languages**: English and Italian, following the TV's language.
 
 On a Sony BRAVIA VH1 (Android TV 12), Platea Home uses about **22 MB of RAM** right after it starts and about 39 MB
-after the panels have been opened. The APK is about **100 KB**. It needs Android 8.0 or later (API 26).
+after the panels have been opened. The APK is about **115 KB**. Sunrise and sunset for the automatic palette are worked
+out on the TV from its time zone, with no location and no network. It needs Android 8.0 or later (API 26).
 
 ## Commands
 | Command | What it does |
@@ -111,7 +115,7 @@ A JSON file is built into the APK; the default is `config/default.json`. Copy it
 | `dock` | Dock apps in order: at most 6, and apps that are not installed are skipped |
 | `hidden` | Apps kept out of the row on Home (they stay on the Apps page) |
 | `live_tv` | The live TV app opened by "Live TV" in the Inputs panel |
-| `palette` | `Grafite`, `Notte blu` or `Giorno` (Graphite, Night blue, Day); it can also be changed on the TV |
+| `palette` | `Grafite`, `Notte blu` or `Giorno` (Graphite, Night blue, Day), or `Auto Grafite` / `Auto Notte blu` for Day by day and that palette at night; it can also be changed on the TV |
 | `sipario_palette` | `Nero`, `Grafite` or `Notte blu` |
 | `lines` | `{"package": ["CATEGORY", "line"]}`: top-shelf text added to the built-in lines (`res/values*/strings.xml`) |
 

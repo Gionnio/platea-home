@@ -74,7 +74,10 @@ final class TileMenu {
         int screenW = a.getResources().getDisplayMetrics().widthPixels;
         int x = loc[0] + anchor.getWidth() + ui.px(28);
         if (x + ui.px(340) > screenW - ui.px(40)) x = loc[0] - ui.px(340) - ui.px(28);
-        int y = Math.max(ui.px(40), loc[1] - ui.px(12));
+        // Sempre dentro lo schermo: un menu lungo (es. i nomi delle cartelle) sale invece di uscire dal fondo.
+        int screenH = a.getResources().getDisplayMetrics().heightPixels;
+        int menuH = items.length * ui.px(62) + ui.px(20);
+        int y = Math.max(ui.px(40), Math.min(loc[1] - ui.px(12), screenH - menuH - ui.px(40)));
         pw.showAtLocation(anchor, Gravity.TOP | Gravity.START, x, y);
         if (box.getChildCount() > 0) box.getChildAt(0).requestFocus();
         return pw;
