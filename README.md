@@ -14,14 +14,14 @@ and its lists tested model by model, always fetched at their latest version. Pla
   <img src="docs/screenshots/home.jpg" width="100%" alt="Home: the text top shelf for Prime Video above a dock of six apps, with a dimmed row of other apps below">
 </p>
 <p align="center">
-  <img src="docs/screenshots/menu.jpg" width="49%" alt="Holding OK on YouTube: Move, Remove from dock, Hide, App info">
+  <img src="docs/screenshots/menu.jpg" width="49%" alt="Holding OK on TizenTube: Move, Remove from dock, Hide, App info">
   <img src="docs/screenshots/quick.jpg" width="49%" alt="The quick settings panel over a dimmed Home, with the volume bar">
-  <img src="docs/screenshots/inputs.jpg" width="49%" alt="The Inputs panel: Live TV, the HDMI ports and an HDMI-CEC device that is on">
+  <img src="docs/screenshots/move.jpg" width="49%" alt="Move mode: Disney+ lifted at the end of the dock, with arrows to move it">
   <img src="docs/screenshots/settings.jpg" width="49%" alt="Launcher settings with the three palettes previewed">
   <img src="docs/screenshots/apps.jpg" width="49%" alt="The Apps page, six per row, dock apps marked with a dot">
   <img src="docs/screenshots/sipario.jpg" width="49%" alt="The Sipario screen saver: the time, a line and the date on black">
 </p>
-<p align="center"><sub>Real screenshots from a Sony BRAVIA set to Italian. The interface follows the TV's language (English or Italian).</sub></p>
+<p align="center"><sub>Real screenshots from a Fire TV Stick 4K Max set to Italian, with the Day palette. The interface follows the TV's language (English or Italian).</sub></p>
 
 ## Quick start
 **With an AI agent:** clone the repo, open it in the agent and paste [`PROMPT.md`](PROMPT.md).

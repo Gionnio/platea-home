@@ -14,14 +14,14 @@ Design: il mockup "Platea Home" (Home, TV e ingressi, App, Sipario, pannelli). F
   <img src="docs/screenshots/home.jpg" width="100%" alt="La Home: top shelf testuale di Prime Video sopra il dock a sei app, con la riga attenuata delle altre app">
 </p>
 <p align="center">
-  <img src="docs/screenshots/menu.jpg" width="49%" alt="OK tenuto premuto su YouTube: Sposta, Togli dal dock, Nascondi, Info app">
+  <img src="docs/screenshots/menu.jpg" width="49%" alt="OK tenuto premuto su TizenTube: Sposta, Togli dal dock, Nascondi, Info app">
   <img src="docs/screenshots/quick.jpg" width="49%" alt="Il pannello rapido sopra la Home attenuata, con il volume">
-  <img src="docs/screenshots/inputs.jpg" width="49%" alt="Il pannello Ingressi: TV in diretta, le porte HDMI e un dispositivo HDMI-CEC acceso">
+  <img src="docs/screenshots/move.jpg" width="49%" alt="La modalità Sposta: Disney+ sollevato in fondo al dock, con le frecce per spostarlo">
   <img src="docs/screenshots/settings.jpg" width="49%" alt="Le impostazioni del launcher con l'anteprima delle tre palette">
   <img src="docs/screenshots/apps.jpg" width="49%" alt="La pagina App, sei per riga, con il puntino sulle app del dock">
   <img src="docs/screenshots/sipario.jpg" width="49%" alt="Il salvaschermo Sipario: ora, linea e data su nero">
 </p>
-<p align="center"><sub>Screenshot reali da una Sony BRAVIA in italiano.</sub></p>
+<p align="center"><sub>Screenshot reali da una Fire TV Stick 4K Max in italiano, con la palette Giorno.</sub></p>
 
 ## Avvio rapido
 **Con un agente AI:** clona il repo, aprilo nell'agente e incolla [`PROMPT.md`](PROMPT.md).
