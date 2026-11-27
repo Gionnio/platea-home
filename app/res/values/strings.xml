@@ -165,4 +165,6 @@
     <string name="move_to_other_folder">Move to another folder</string>
     <string name="folders">Folders</string>
     <string name="folders_text">Group apps in folders on Home and on the Apps page: hold OK on an app and choose Move to a folder. Off, the folders are kept but their apps show one by one.</string>
+    <string name="key_service_label">Platea Home remote buttons</string>
+    <string name="key_service_description">Makes remote buttons that only the stock launcher handled work again, such as the gear and app buttons, as set in Platea Home’s config. It only sees the buttons listed there and reads nothing on screen.</string>
 </resources>

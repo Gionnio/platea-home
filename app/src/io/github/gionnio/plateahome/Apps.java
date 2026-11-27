@@ -90,7 +90,9 @@ final class Apps {
     /** Apre un'azione di sistema, o la prima alternativa che la TV conosce. */
     static boolean action(Context c, String... actions) {
         for (String a : actions) {
-            Intent i = new Intent(a).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // A fresh settings task each time: otherwise every open stacks one more copy on the last, and Back seems
+            // to do nothing. With one copy, Back goes straight back to where the person was.
+            Intent i = new Intent(a).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             if (i.resolveActivity(c.getPackageManager()) == null) continue;
             try { c.startActivity(i); return true; } catch (ActivityNotFoundException | SecurityException ignored) { }
         }

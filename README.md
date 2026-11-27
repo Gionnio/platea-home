@@ -56,6 +56,7 @@ an app to change it, or build your own with a config (see below).
 | Sony BRAVIA (VH1 platform, 2020), EU firmware | Android TV 12 | Everything works, including HDMI-CEC device names |
 | Fire TV Stick 4K Max (2nd gen), Fire OS 8.1.8.5, through dumbtv's Home guard ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Boots into Platea Home; Home from an app opens it; about 45 MB of RAM |
 | TCL (C06 platform, firmware V8-T221T05-LF1V325; retail model pending) ([issue #1](https://github.com/Gionnio/platea-home/issues/1)) | Android TV 11 | Default Home after reboot, dock persistence, Apps/Inputs/quick controls/settings, physical remote controls and Sipario passed. HDMI-CEC device names not specifically tested. |
+| Strong Leap Nova "UHD Google TV Stick" (SkyworthDigital CXR, Amlogic, 2 GB) ([issue #4](https://github.com/Gionnio/platea-home/issues/4)) | Google TV 14 | Home after reboot and from apps with the real remote; about 64 MB of RAM against 115 MB for launcherx. The gear and YouTube buttons need the remote-button service ([issue #3](https://github.com/Gionnio/platea-home/issues/3)) |
 
 **Testing it on another TV?** Please open an issue with the model, the Android version and firmware, what works and
 what doesn't, and screenshots. Do not include IP addresses or network names.
@@ -85,10 +86,16 @@ what doesn't, and screenshots. Do not include IP addresses or network names.
 - **Launcher settings**: the dock and hidden apps, folders on or off, the palette (Graphite, Night blue, Day, or **automatic**: Day from sunrise to sunset, then Graphite or Night blue) with a preview, reduced
   animations, the screen saver, the default Home and an About page.
 - **Sipario**: a screen saver with the time, a line and the date on black, which moves a little every minute.
+- **Remote buttons** (optional): on some remotes the gear or an app button only worked through the stock launcher, or
+  opened an app you disabled. With `keys` in the config, a small accessibility service handles just those buttons,
+  for example the gear opens the quick settings over the app you are in, and the YouTube button opens TizenTube. It sees only the buttons listed,
+  never the screen, and every other button works as before. `platea-home.sh` turns it on only when the config has
+  `keys`, and `restore` turns it off. Test it with the real remote: keys sent with `adb shell input keyevent` don't
+  go through it.
 - **Languages**: English and Italian, following the TV's language.
 
 On a Sony BRAVIA VH1 (Android TV 12), Platea Home uses about **22 MB of RAM** right after it starts and about 39 MB
-after the panels have been opened. The APK is about **115 KB**. Sunrise and sunset for the automatic palette are worked
+after the panels have been opened. The APK is about **180 KB**. Sunrise and sunset for the automatic palette are worked
 out on the TV from its time zone, with no location and no network. It needs Android 8.0 or later (API 26).
 
 ## Commands
@@ -118,6 +125,7 @@ A JSON file is built into the APK; the default is `config/default.json`. Copy it
 | `palette` | `Grafite`, `Notte blu` or `Giorno` (Graphite, Night blue, Day), or `Auto Grafite` / `Auto Notte blu` for Day by day and that palette at night; it can also be changed on the TV |
 | `sipario_palette` | `Nero`, `Grafite` or `Notte blu` |
 | `lines` | `{"package": ["CATEGORY", "line"]}`: top-shelf text added to the built-in lines (`res/values*/strings.xml`) |
+| `keys` | Optional remote buttons: `{"<key code>": "quick" \| "settings" \| "home" \| "apps" \| "<package>"}`, e.g. `{"83": "quick", "266": "io.gh.reisxd.tizentube.cobalt"}`. `quick` opens Platea Home's quick settings over the app in front, without leaving it. Find the code with `adb shell getevent -l` while pressing the button |
 
 Choices made on the TV (the dock order, hidden apps, the palette) stay on the TV and win over the config.
 

@@ -55,6 +55,7 @@ cambi tenendo premuto OK su un'app, oppure compilandolo con il tuo config (vedi 
 | Sony BRAVIA (piattaforma VH1, 2020), firmware EU | Android TV 12 | Tutto funziona, compresi i nomi dei dispositivi HDMI-CEC |
 | Fire TV Stick 4K Max (2ª gen.), Fire OS 8.1.8.5, tramite il Guard di dumbtv ([issue #2](https://github.com/Gionnio/platea-home/issues/2)) | Fire OS 8 (Android 11) | Si avvia in Platea Home; Home da un'app lo apre; circa 45 MB di RAM |
 | TCL (piattaforma C06, firmware V8-T221T05-LF1V325) ([issue #1](https://github.com/Gionnio/platea-home/issues/1)) | Android TV 11 | Schermata iniziale predefinita dopo il riavvio, persistenza del dock, app/ingressi/comandi rapidi/impostazioni, telecomandi fisici e Sipario funzionanti. I nomi dei dispositivi HDMI-CEC non sono stati testati in modo specifico. |
+| Strong Leap Nova "UHD Google TV Stick" (SkyworthDigital CXR, Amlogic, 2 GB) ([issue #4](https://github.com/Gionnio/platea-home/issues/4)) | Google TV 14 | Home dopo il riavvio e dalle app col telecomando vero; circa 64 MB di RAM contro i 115 MB di launcherx. I tasti ingranaggio e YouTube vogliono il servizio tasti ([issue #3](https://github.com/Gionnio/platea-home/issues/3)) |
 
 **Lo provi su un'altra TV?** Apri una issue con modello, versione di Android e firmware, cosa va e cosa no, e gli
 screenshot. Senza indirizzi IP né nomi di rete.
@@ -79,8 +80,14 @@ screenshot. Senza indirizzi IP né nomi di rete.
 - **Rete**: tipo di connessione, se c'è internet, indirizzo, nome e velocità del Wi-Fi; scorciatoie alle impostazioni di rete. Legge lo stato con due permessi "normali": nessun accesso a internet.
 - **Ingressi**: TV in diretta (i sintonizzatori uniti in una voce) e porte HDMI con il nome del dispositivo CEC, acceso o in standby; le porte vuote sono raccolte in "Altri ingressi".
 - **Impostazioni del launcher**: app nel dock e nascoste, cartelle sì o no, palette (Grafite, Notte blu, Giorno, oppure **automatica**: Giorno dall'alba al tramonto, poi Grafite o Notte blu) con anteprima, animazioni ridotte, Sipario, Home predefinita, informazioni.
+- **Tasti del telecomando** (facoltativo): su alcuni telecomandi l'ingranaggio o un tasto app funzionavano solo col
+  launcher di serie, o aprivano un'app spenta. Con `keys` nel config un piccolo servizio di accessibilità gestisce
+  solo quei tasti: per esempio l'ingranaggio apre le impostazioni rapide sopra l'app in cui sei e il tasto YouTube apre TizenTube. Vede
+  solo i tasti elencati, mai lo schermo, e tutti gli altri tasti restano come prima. `platea-home.sh` lo accende solo
+  se il config ha `keys`, e `restore` lo spegne. Va provato col telecomando vero: i tasti mandati con
+  `adb shell input keyevent` non passano da lì.
 - **Lingue**: inglese e italiano, secondo la lingua della TV.
-- **Peso**: APK di circa 115 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM appena avviata e circa 39 MB dopo aver aperto pannelli e impostazioni. Alba e tramonto per la palette automatica si calcolano sulla TV dal fuso orario, senza posizione e senza rete.
+- **Peso**: APK di circa 180 KB. Sulla Sony BRAVIA VH1 la Home usa circa 22 MB di RAM appena avviata e circa 39 MB dopo aver aperto pannelli e impostazioni. Alba e tramonto per la palette automatica si calcolano sulla TV dal fuso orario, senza posizione e senza rete.
 
 Da fare: prove su altre marche e su un box Google TV.
 
@@ -117,6 +124,7 @@ Un file JSON messo nell'APK alla build (`config/default.json` di serie):
 | `palette` | `Grafite`, `Notte blu`, `Giorno`, oppure `Auto Grafite` / `Auto Notte blu`: Giorno di giorno e quella palette di notte (si cambia anche dalle impostazioni sulla TV) |
 | `sipario_palette` | `Nero`, `Grafite`, `Notte blu` |
 | `lines` | `{"pacchetto": ["CATEGORIA", "riga"]}` in aggiunta a quelle di serie (`Config.java`) |
+| `keys` | Tasti del telecomando facoltativi: `{"<codice>": "quick" \| "settings" \| "home" \| "apps" \| "<pacchetto>"}`, per esempio `{"83": "quick", "266": "io.gh.reisxd.tizentube.cobalt"}`. `quick` apre le impostazioni rapide di Platea Home sopra l'app in uso, senza uscirne. Il codice si trova con `adb shell getevent -l` mentre si preme il tasto |
 
 Le scelte fatte sulla TV (ordine del dock, app nascoste) restano sulla TV e vincono sul config.
 

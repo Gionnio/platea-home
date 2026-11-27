@@ -24,6 +24,8 @@ final class Config {
     String liveTv = "";
     String palette = "Grafite";
     String siparioPalette = "Nero";
+    /** Remote buttons for KeyService: key code → "settings", "home", "apps" or a package to open. */
+    final Map<Integer, String> keys = new HashMap<>();
     /** pacchetto → {categoria, riga} per il top shelf. */
     final Map<String, String[]> lines = new HashMap<>();
 
@@ -49,6 +51,16 @@ final class Config {
             c.liveTv = o.optString("live_tv", c.liveTv);
             c.palette = o.optString("palette", c.palette);
             c.siparioPalette = o.optString("sipario_palette", c.siparioPalette);
+            JSONObject k = o.optJSONObject("keys");
+            JSONArray kn = k == null ? null : k.names();
+            for (int i = 0; kn != null && i < kn.length(); i++) {
+                String name = kn.getString(i);
+                int code;
+                try { code = Integer.parseInt(name.trim()); }
+                catch (NumberFormatException e) { code = android.view.KeyEvent.keyCodeFromString(name.trim()); }
+                String target = k.optString(name, "").trim();
+                if (code > 0 && !target.isEmpty()) c.keys.put(code, target);
+            }
             JSONObject l = o.optJSONObject("lines");
             if (l != null) {
                 JSONArray names = l.names();

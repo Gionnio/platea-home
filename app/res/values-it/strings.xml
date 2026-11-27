@@ -156,4 +156,6 @@
     <string name="move_to_other_folder">Sposta in un’altra cartella</string>
     <string name="folders">Cartelle</string>
     <string name="folders_text">Raggruppa le app in cartelle nella Home e nella pagina App: tieni premuto OK su un’app e scegli Sposta in una cartella. Spente, le cartelle restano salvate ma le app si vedono una per una.</string>
+    <string name="key_service_label">Tasti del telecomando di Platea Home</string>
+    <string name="key_service_description">Fa funzionare di nuovo i tasti del telecomando che gestiva solo il launcher di serie, come l’ingranaggio e i tasti delle app, come indicato nel config di Platea Home. Vede solo i tasti elencati lì e non legge niente sullo schermo.</string>
 </resources>

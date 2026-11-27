@@ -36,6 +36,17 @@ use its lists and tools, never write your own debloat lists or scripts here, and
 - **Wi-Fi owned by setupwraith:** on Google TV the network saved during first setup can belong to
   `com.google.android.tungsten.setupwraith`. Check `adb shell dumpsys wifi | grep -o 'cname=[^ ]*'` before anything
   disables it, or the TV drops off the network and ADB with it.
+- **setupwraith and Home on Google TV:** while setupwraith is enabled, its `RecoveryActivity` (priority 1) wins over
+  any third-party Home, so `platea-home.sh install` fails and rolls back. The shell cannot disable just that
+  component (`Shell cannot change component state`): setupwraith goes off as a package, and only while launcherx is
+  still enabled. On some firmware (Strong Leap Nova) "forget network and join again" doesn't move the Wi-Fi away from
+  setupwraith, because the network is created through its UI. What worked there:
+  1. disable setupwraith with launcherx still enabled: the stick drops off Wi-Fi;
+  2. join the network again from Settings with the remote: it now belongs to `android.uid.system`;
+  3. run `platea-home.sh install`.
+- **Before anything risky on a stick, pair Wireless debugging** (`adb pair`). adb then finds it again over mDNS
+  (`adb mdns services`, `_adb-tls-connect._tcp`) even when port 5555 is gone after a reboot. Many sticks have no
+  reset button.
 - **Ask about what people use**: streaming apps, the voice assistant (switching it off also kills voice search in
   apps), Chromecast, AirPlay, live TV, HbbTV, recording to USB, the universal-remote / IR blaster. Disable only what
   they do not use.
@@ -82,7 +93,13 @@ use its lists and tools, never write your own debloat lists or scripts here, and
   - `hidden`: apps to keep off Home;
   - `live_tv`: the live TV package, e.g. `com.sony.dtv.tvx` on Sony or `com.mediatek.wwtv.tvcenter` on many MediaTek sets;
   - `palette`, `sipario_palette`;
-  - optional `lines` for apps without a built-in description.
+  - optional `lines` for apps without a built-in description;
+  - optional `keys`, for remote buttons that stop working once the stock launcher is off (on Google TV sticks the
+    gear sends `KEYCODE_NOTIFICATION` 83, which only launcherx handles) or that open a disabled app (YouTube's
+    `STEM_2` 266). Read each code with `adb shell getevent -l` while the person presses the real button, then map it to
+    `quick` (Platea Home's quick settings over the app in front: what the gear should do), `settings`, `home`,
+    `apps` or a package. Leave out buttons that still work: the vendor's global-key handler keeps
+    them.
 - `CONFIG=config/<tv-name>.json SIPARIO=1 TV_HOST=<ip> ./platea-home.sh install`. The script:
   1. checks that Platea Home really starts;
   2. then makes it Home;
@@ -100,7 +117,8 @@ use its lists and tools, never write your own debloat lists or scripts here, and
     before waking it.
 - Reboot once and confirm that Home is still Platea Home and the disabled packages stayed disabled.
 - **An injected key is not proof** for the remote. Ask the person to press the real Home, Back, Input and gear
-  buttons, and to hold OK on an app.
+  buttons, and to hold OK on an app. With `keys` in the config, also every mapped button: `adb shell input keyevent`
+  does not go through the accessibility key filter, so only the real remote tests it.
 - Measure memory: `dumpsys meminfo io.github.gionnio.plateahome` (TOTAL PSS), about a minute after the last action.
 - Tell the person how to undo everything:
   - `TV_HOST=<ip> ./platea-home.sh restore`;
@@ -160,14 +178,16 @@ Fire OS keeps Amazon's Home whatever you set: `set-home-activity` answers `Succe
 ## Job B: change the code
 
 ### Rules
-- **No network:** no `INTERNET` permission, no analytics, no ads, no background services or polling. The only
+- **No network:** no `INTERNET` permission, no analytics, no ads, no background services or polling. The one
+  exception is `KeyService`, an accessibility service that only filters the remote buttons listed in the config's
+  `keys`; it stays off unless the config has `keys`, reads no window content and listens to no events. The only
   permissions are:
   - `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE`, to show the connection;
   - `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`, only because Android hides the Wi-Fi name without them. The
     install script grants them over ADB, and the app never reads the location.
 - **No libraries and no Gradle:** plain Java and Android views, built by `build.sh`, with `minSdk` 26.
 - **Light:**
-  - the APK stays under 256 KB (about 115 KB today);
+  - the APK stays under 256 KB (about 180 KB today);
   - Home stays under 40 MB of RAM about a minute after start on a real TV (about 22 MB on a Sony BRAVIA VH1);
   - load app banners lazily, only for the tiles on screen.
 - **Layout follows the mockup:** sizes are in pixels of a 1920×1080 TV, scaled with `Ui.px()`. The design is neutral:

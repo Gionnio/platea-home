@@ -16,6 +16,7 @@ PKG=io.github.gionnio.plateahome
 ACT=$PKG/.MainActivity
 CACHE="$HERE/.cache/cleanyourtv"
 STOCK="com.google.android.tvlauncher com.google.android.apps.tv.launcherx com.google.android.leanbacklauncher"
+KEYSVC="$PKG/$PKG.KeyService"
 
 need_tv() {
   : "${TV_HOST:?set TV_HOST=<IP address of the TV>}"
@@ -33,6 +34,34 @@ home_now() { t cmd package resolve-activity --brief -a android.intent.action.MAI
 # Fire OS keeps Amazon's Home whatever set-home-activity says: there dumbtv's Home guard opens Platea Home (firetv/README.md).
 is_fireos() { [ "$(t getprop ro.product.manufacturer)" = Amazon ] || t pm list packages com.amazon.tv.launcher | grep -qx package:com.amazon.tv.launcher; }
 guard_on() { t settings get secure enabled_accessibility_services | grep -q "tv.dumbtv.home/"; }
+# The remote-button service (KeyService) is on only when the config has "keys". It is added to the accessibility
+# services already enabled (dumbtv's guard, for one), never in their place, and restore takes only it away.
+config_has_keys() { [ -n "${CONFIG:-}" ] && [ -f "$CONFIG" ] && python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get("keys") else 1)' "$CONFIG"; }
+keys_on() {
+  local now; now="$(t settings get secure enabled_accessibility_services)"
+  case "$now" in *"$PKG/"*) return 0 ;; esac
+  [ -s "$STATE/a11y-enabled-before" ] || t settings get secure accessibility_enabled > "$STATE/a11y-enabled-before"
+  if [ -z "$now" ] || [ "$now" = null ]; then now="$KEYSVC"; else now="$now:$KEYSVC"; fi
+  t settings put secure enabled_accessibility_services "$now"
+  t settings put secure accessibility_enabled 1
+}
+keys_off() {
+  local now new; now="$(t settings get secure enabled_accessibility_services)"
+  case "$now" in *"$PKG/"*) ;; *) return 0 ;; esac
+  new="$(printf '%s' "$now" | tr ':' '\n' | { grep -v "^$PKG/" || true; } | paste -sd: -)"
+  if [ -n "$new" ]; then t settings put secure enabled_accessibility_services "$new"
+  else
+    t settings delete secure enabled_accessibility_services >/dev/null
+    local before=""; [ -s "$STATE/a11y-enabled-before" ] && before="$(cat "$STATE/a11y-enabled-before")"
+    if [ "$before" = 1 ]; then t settings put secure accessibility_enabled 1; else t settings put secure accessibility_enabled 0; fi
+  fi
+  rm -f "$STATE/a11y-enabled-before"
+  echo "[OK] Remote-button service off"
+}
+apply_keys() {
+  if config_has_keys; then keys_on; echo "[OK] Remote-button service on (keys from $CONFIG). Test it with the real remote."
+  else keys_off; fi
+}
 restore_saver() {
   local saver=""; [ -s "$STATE/screensaver-before" ] && saver="$(cat "$STATE/screensaver-before")"
   if [ -n "$saver" ] && [ "$saver" != null ] && t pm list packages "${saver%%/*}" | grep -qx "package:${saver%%/*}"; then
@@ -69,6 +98,7 @@ install() {
   echo "$start" | grep -q "Status: ok" || { echo "$start"; echo "[!!] Platea Home does not open: Home stays $before"; exit 1; }
   if is_fireos; then
     if [ "${SIPARIO:-0}" = 1 ]; then t settings put secure screensaver_components "$PKG/.SiparioDream"; echo "[OK] Screen saver: Sipario"; fi
+    apply_keys
     if guard_on; then
       echo "[OK] Fire OS: Platea Home is installed and dumbtv's Home guard is on. Press Home on the real remote to check."
     else
@@ -79,25 +109,39 @@ install() {
   fi
   t cmd package set-home-activity --user 0 "$ACT" >/dev/null
   local now; now="$(home_now)"
+  local disabled_now=""
   if [ "$now" != "$ACT" ]; then
     local owner="${now%%/*}"
     case " $STOCK " in
       *" $owner "*)
         echo "[..] The TV still prefers $owner: disabling it (restore enables it again)"
-        t pm disable-user --user 0 "$owner" >/dev/null && echo "$owner" >> "$STATE/disabled-by-platea-home"
+        if t pm disable-user --user 0 "$owner" >/dev/null; then echo "$owner" >> "$STATE/disabled-by-platea-home"; disabled_now="$owner"; fi
         t cmd package set-home-activity --user 0 "$ACT" >/dev/null ;;
     esac
     now="$(home_now)"
   fi
   if [ "$now" != "$ACT" ]; then
     echo "[!!] Home resolves to '$now', not Platea Home: putting the previous Home back"
-    [ -s "$STATE/home-before" ] && t cmd package set-home-activity --user 0 "$(cat "$STATE/home-before")" >/dev/null
+    # First enable what this run disabled: a disabled launcher cannot be Home again.
+    if [ -n "$disabled_now" ]; then
+      t pm enable --user 0 "$disabled_now" >/dev/null && echo "[OK] Enabled $disabled_now again"
+      grep -vx "$disabled_now" "$STATE/disabled-by-platea-home" > "$STATE/disabled.tmp" || true
+      mv "$STATE/disabled.tmp" "$STATE/disabled-by-platea-home"
+    fi
+    if [ -s "$STATE/home-before" ]; then
+      local back; back="$(cat "$STATE/home-before")"
+      t cmd package set-home-activity --user 0 "$back" >/dev/null
+      now="$(home_now)"
+      if [ "$now" = "$back" ]; then echo "[OK] Home is $back again"
+      else echo "[!!] Home resolves to '$now', not $back: check it by hand (on Google TV, setupwraith's RecoveryActivity wins while it is enabled)"; fi
+    fi
     exit 1
   fi
   if [ "${SIPARIO:-0}" = 1 ]; then
     t settings put secure screensaver_components "$PKG/.SiparioDream"
     echo "[OK] Screen saver: Sipario"
   fi
+  apply_keys
   t input keyevent KEYCODE_HOME
   echo "[OK] Platea Home is Home ($(home_now))"
 }
@@ -106,6 +150,7 @@ restore() {
   need_tv
   if is_fireos; then
     restore_saver
+    keys_off
     t pm uninstall "$PKG" >/dev/null && echo "[OK] Platea Home removed"
     rm -f "$STATE/home-before" "$STATE/screensaver-before"
     if guard_on; then
@@ -135,6 +180,7 @@ restore() {
   fi
   t cmd package set-home-activity --user 0 "$target" >/dev/null
   restore_saver
+  keys_off
   local now; now="$(home_now)"
   if [ "${now%%/*}" != "$PKG" ] && [ "${now%%/*}" != android ]; then
     t pm uninstall "$PKG" >/dev/null && echo "[OK] Platea Home removed"
@@ -166,6 +212,7 @@ status() {
   echo "Version:      $(t dumpsys package $PKG | sed -n 's/^ *versionName=//p' | head -1)"
   echo "Memory:       $(t dumpsys meminfo $PKG | awk '/TOTAL PSS:/{print $3 " KB"; exit}')"
   echo "Screen saver: $(t settings get secure screensaver_components)"
+  echo "Remote keys:  $(t settings get secure enabled_accessibility_services | grep -q "$PKG/" && echo on || echo off)"
   if is_fireos; then echo "Fire OS:      yes, dumbtv Home guard $(guard_on && echo on || echo off)"; fi
 }
 
